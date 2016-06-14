@@ -1,4 +1,4 @@
-# Finance_program
+# Finance Program
 Published 8 April 2016
 Author: mankaine
 
