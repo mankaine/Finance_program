@@ -1,275 +1,288 @@
-# Finance_view module. Implements the Finance Program graphical user interface.
-# By William Khaine. Version 3.
-# June 11, 2016
-
-import finance_model
-import math 
-
-# _create_trasnaction enables a user to input information about the a Transaction,
-# and processes that information. It will be repeated in _create_transactions. In the 
-# case when an error in input is made, the int 0 is returned, which will be processed in
-# _create_transactions as a sign that the loop needs to be repeated.
-
-
-# revise code to implement revisions
-
-def _create_transaction() -> finance_model.Transaction:
-    '''Creates a Transaction
-    '''
-    print(('*' * 27) + 'Entering New Transaction' + ('*' * 27))
-    
-    try:
-        year  = int(input('Year: ').strip())
-        if 1 > year or year > 9999:
-            raise ValueError()
-        
-        month = int(input('Month: ').strip())
-        if 1 > month or month > 12:
-            raise ValueError()
-       
-        day   = int(input('Date: ').strip())
-        if 1 > day or day > 31:
-            raise ValueError()
-        
-        cate = input('Category: ')
-        desc = input('Description: ')
-        
-        price = float(input('Price: '))    
-        
-        return finance_model.Transaction(finance_model.Date(year, month, day),
-                                         finance_model.Category(cate),
-                                         finance_model.Description(desc),
-                                         finance_model.Price('$', price))
-    except:
-        return 0
-
-
-# _create_transactions runs a loop that enables the user to input a series of 
-# Transactions. The process to input information ends when 
-# _ask_to_continue_entry's value is False.
-def _create_transactions(transactions: list):
-    '''Creates a list of transactions, which the user is allowed to append
-    '''
-    _entering_transaction_list = True
-    while _entering_transaction_list:
-                
-        new_transaction = _create_transaction()
-        entering_new_transaction = True
-        
-        while entering_new_transaction:
-            # if new_transaction.date.date == finance_model.datetime.date(1, 1, 1):
-            if new_transaction == 0:
-                print()
-                new_transaction = _create_transaction()
-            
-            else:
-                transactions.trnsctns.append(new_transaction)
-                entering_new_transaction = False
-                print()
-        
-        _entering_transaction_list = _ask_to_continue_entry('More transactions? ')
-        print()
-        
-
-def _ask_to_continue_entry(question: str) -> bool:
-    '''Returns true if the user enters an answer saying that he or she wishes 
-    to continue
-    '''
-    user_wants_continuation = False
-    response = input(question).lower()
-    if response == 'yes' or response == 'y':
-        user_wants_continuation = True
-    return user_wants_continuation
-    
-
-# For the sake of style, the first transaction in the list of the transactions
-# contains a sign of the currency in the list of transactions. It will print the
-# currency sign before the price. Otherwise, it is the same as _format_transactions,
-# which will format the transactions that will be exported to a .txt document and 
-# printed to the console.
+# finance_view. Deals specifically with viewing transactions as 
+# selected in the main menu.
 #
-# Both these functions will be implemented into _export_all_information 
-# and _view_all_transactions.
-def _format_first_transaction(transaction: 'Transaction') -> str:
-    '''Returns a formatted string representing a the first transaction's various
-    attributes
+# This module shouldn't be confused with basic_view; that module
+# refers to functions and variables used across multiple user
+# interface modules.
+
+import cashflow
+import basic_view
+
+# When called in the main_menu module, handle_view_choice will display another
+# menu to provide users with a choice to view transactions within a month, the
+# budget analysis, or return to the main menu. 
+def handle_view_choice (pos_cfs: cashflow.CashFlows, neg_cfs: cashflow.CashFlows):
+    '''Displays all transactions
     '''
-    return '{:%m/%d/%Y} {:30} {:30} {}{:>7.2f}\n'.format(transaction.date.date,
-                                                         transaction.category.cat,
-                                                         transaction.description.desc,
-                                                         transaction.price.crncy,
-                                                         transaction.price.price)
-
-
-def _format_transactions(transaction: finance_model.Transaction) -> str:
-    '''Returns a formatted string representing a transaction's various attributes
-    '''
-    return '{:%m/%d/%Y} {:30} {:30} {:>8.2f}\n'.format(transaction.date.date,
-                                                        transaction.category.cat,
-                                                        transaction.description.desc,
-                                                        transaction.price.price)    
-    
-    
-def _format_subtotal(transactions: finance_model.Transactions) -> str:
-    '''Returns a formatted string representing the subtotal of the transactions' prices
-    '''
-    return 'Total  {} {}{:>7.2f}'.format(('*'*(30 + 30 + 10 - len('Total'))),
-                                        transactions.trnsctns[0].price.crncy, 
-                                        transactions.total())    
-        
-# _format_document_title and _format_attributes return values which will be put at the 
-# top of an exported .txt document and printed in the console. Both are caed in 
-# _export_all_information and _view_all_information as a result.    
-def _format_document_title(title: str):
-    '''Returns a formatted string represented a formatted title
-    '''
-    star_length = math.floor((84 - len(title))/2)
-    return '{}{}{}\n'.format('*' * star_length, title, '*' * star_length)
-
-
-def _format_attributes():
-    '''Returns a formatted string representing the attributes of a Transaction
-    '''
-    return '{:10} {:30} {:30} {:10}\n'.format('Date', 'Category', 'Description', 'Price')
-
-
-# Both _export_all_information and _view_all_transactions are called in the function
-# run_user_interface.
-def _export_all_information(filename: str, transactions: finance_model.Transactions, 
-                            title: str):
-    '''Exports all information to a document
-    '''
-    file_to_export = open(filename, 'w')
-    try:
-        
-        file_to_export.write(_format_document_title(title))
-        file_to_export.write(_format_attributes())
-        
-        for transaction in transactions.trnsctns:
-            if transactions.trnsctns[0] == transaction:
-                file_to_export.write(_format_first_transaction(transaction))
-            else:
-                file_to_export.write(_format_transactions(transaction))
-        file_to_export.write(_format_subtotal(transactions))
-    finally:
-        file_to_export.close()
-
-
-def _view_all_transactions(filename: str, transactions: finance_model.Transactions, 
-                           title: str):
-    '''Prints on the console the name of the file all information will be exported to, and 
-    the transactions
-    '''
-    print("The following will be exported to the file {}".format(filename))
-    print()
-    print(_format_document_title(title))
-    print(_format_attributes())
-    for transaction in transactions.trnsctns:
-        if transactions.trnsctns[0] == transaction:
-            print(_format_first_transaction(transaction))
+    view_menu = """DISPLAY MENU
+1. Display transactions within a month
+2. Display monthly analysis
+3. Display analysis of one account
+4. Return to main menu
+"""
+    while True:
+        menu_choice = basic_view.menu_input(view_menu, 5)
+        if menu_choice == 1:
+            _display_transx_month(pos_cfs, neg_cfs)
+            basic_view.print_loading_newline("Returning to Display Menu")
+        elif menu_choice == 2:
+            _display_budget_month(pos_cfs, neg_cfs)
+            basic_view.print_loading_newline("Returning to Display Menu")
+        elif menu_choice == 3:
+            breakdown_one_account(pos_cfs, neg_cfs)
+            basic_view.print_loading_newline("Returning to Display Menu")
+        elif menu_choice == 4:
+            break
         else:
-            print(_format_transactions(transaction))
-    print(_format_subtotal(transactions))
-    print()
+            print('{} not an option. Please try again'.format(menu_choice))
+    basic_view.print_loading_newline("RETURNING TO MAIN MENU")
+        
+    # _display_all_transxs (master_dict)
 
 
-# A user may have typed in inaccurate information. _edit_transaction allows the user to 
-# revise one single transaction's attribute at a time, and will continue to ask the user 
-# to revise until he or she decides not to. In order to choose which attribute to revise, the 
-# function calls two other functions, _select_transaction_to_edit, and _edit_transaction_attribute.
-# The former returns a the transaction to edit, which is passed as the parameter in
-# _edit_transaction_attribute.
-
-def _edit_transactions(transactions: finance_model.Transactions) -> finance_model.Transactions:
-    '''Displays transactions, and edits a particular one
+# DISPLAYING TRANSACTIONS IN A MONTH/YEAR PAIR ################################
+# The program will run through these series of functions to choose the month, 
+# year, and display the resulting transactions.
+def _display_transx_month (
+    pos_cfs: cashflow.CashFlows, neg_cfs: cashflow.CashFlows):
+    '''Displays the transactions with in a selected year and month
     '''
-    editing_transactions = True
-    while editing_transactions:
+    _year_choice = basic_view.view_years(pos_cfs.cfs, 
+        neg_cfs.cfs, "Years to view:")
+    _month_choice = basic_view.view_months(_year_choice, 
+        pos_cfs.cfs, neg_cfs.cfs, "Months to view:")
+    view_transxs(_year_choice, _month_choice, pos_cfs.cfs, neg_cfs.cfs)
     
-        print('{}  {}'.format((' ' * len(transactions.trnsctns)), _format_attributes()))
-        for trnsctn_ind in range(len(transactions.trnsctns)):
-            if transactions.trnsctns[trnsctn_ind] == transactions.trnsctns[0]:
-                print(trnsctn_ind + 1, _format_first_transaction(transactions.trnsctns[trnsctn_ind]))
-            else:
-                print(trnsctn_ind + 1 + '.', _format_transactions(transactions.trnsctns[trnsctn_ind]))
-        print()
-        
-        _typo_transaction = _select_transaction_to_edit(transactions)
-        _edit_transaction_attribute(_typo_transaction)
-        
-        print(('*' * 30) + 'Edited Transaction' + ('*' * 30))
-        print(_format_first_transaction(_typo_transaction))
-        
-        editing_transactions = _ask_to_continue_entry('Continue editing transactions? ')
 
-
-def _select_transaction_to_edit(transactions: finance_model.Transactions) -> finance_model.Transaction:
-    '''Returns the selected Transaction
+# The first two lines of code are implemented to display to the user that the 
+# program is currently displaying selected transactions and the attributes of 
+# those transactions. The if-else statements are necessary because the _display_cf
+# function doesn't account for dictionaries that lack certain keys. So if one 
+# dictionary representing cash flows in one direction is non-existent, 
+# view_transxs should be able to display only one dictionary. But if both dicts
+# contain the month and year pair, then _display_cfs_two_dicts is called.
+# 
+def view_transxs(year: int, month: int, 
+                 pos_cfs_dict: dict, neg_cfs_dict: dict) -> str:
+    '''Displays transactions within a selected month and year 
     '''
-    checking_for_number = True
-    while checking_for_number:
-        try:
-            num_choice = (input('Type in the number of the transaction you wish to edit: '))
-            if 1 <= int(num_choice) <= len(transactions.trnsctns):
-                checking_for_number = False
-                return transactions.trnsctns[int(num_choice) - 1]
-            else:
-                print('{} is outside of list number from 1 to {}. Try again'.format(num_choice, 
-                                                                                    len(transactions.trnsctns)))
-        except:
-            print('{} is outside of the list number from 1 to {}. Try again'.format(num_choice,
-                                                                                    len(transactions.trnsctns)))
-
-
-def _edit_transaction_attribute(transaction: finance_model.Transaction):
-    '''Edits the transaction specified in the parameter
+    basic_view.print_loading_newline("Displaying Options")        
+    if year in pos_cfs_dict or year in neg_cfs_dict:
+        if year not in pos_cfs_dict:
+            _display_cfs(neg_cfs_dict, year, month)
+        elif year not in neg_cfs_dict:
+            _display_cfs(pos_cfs_dict, year, month)
+    if year in pos_cfs_dict and year in neg_cfs_dict:
+        if month in pos_cfs_dict[year] and month in neg_cfs_dict[year]:
+            _display_cfs_two_dicts(pos_cfs_dict, neg_cfs_dict, year, month)
+        elif month not in pos_cfs_dict[year] and month in neg_cfs_dict[year]:
+            _display_cfs(neg_cfs_dict, year, month)
+        elif month in pos_cfs_dict[year] and month not in neg_cfs_dict[year]:
+            _display_cfs(pos_cfs_dict, year, month)
+ 
+        
+def _display_cfs(cfs_dict: cashflow.CashFlows, year: int, month: int) -> str:
+    '''Displays Cash Flows within one dictionary
     '''
-    checking_for_attribute = True
-    while checking_for_attribute:
-        
-#         try:
-        attrib_choice = input('Select attribute you wish to revise: ').strip().lower()
-        print()
-        if attrib_choice == 'date':
-            transaction.date.change_date()
-            checking_for_attribute = False
-        
-        elif attrib_choice == 'category':
-            transaction.category.change_cat()
-            checking_for_attribute = False
-        
-        elif attrib_choice == 'description':
-            transaction.description.change_desc()
-            checking_for_attribute = False
+    all_transxs = []
+    for cf in cfs_dict[year][month]: 
+        all_transxs.append(cf)
+    sorted_transxs = _sort_transxs(all_transxs)
 
-        elif attrib_choice == 'price':
-            transaction.price.change_price()
-            checking_for_attribute = False
+    basic_view.print_loading_newline(
+        "Displaying Transactions for Month {}, Year {}".format(month, year))
+    print(("\n{:5} {:20} {:20} {:10} {:4}").format(
+        "Day", "Account", "Description", "Price", "Flow"))
+    print(basic_view.LINE)
 
-#         except:
-#             print('{} is not in the list of attributes. Try again'.format(attrib_choice))
-
-
-
-def run_user_interface(transactions: finance_model.Transactions):
-    '''Exports list of Transactions to a document
-    '''
-    _title = input('Title of List of Transactions: ')
-    _filename = input('File name to export documents to: ')
-    print()
+    for cf in sorted_transxs:
+        if cf == sorted_transxs[0]:
+            _display_first_transx(cf)
+        else:
+            _display_other_transx(cf)
     
-    _create_transactions(transactions)
-    _view_all_transactions(_filename, transactions, _title)
+
+def _display_first_transx(cf: cashflow.CashFlow) -> str:
+    '''Displays the first transaction in a list of cash flows, 
+    formatted especially to indicate currency of a transaction
+    '''
+    print(("{:^5} {:20} {:20} {:3}{:7.2f} {}".format(
+            cf.day, cf.acct_name, cf.desc, cf.currency, cf.price, 
+            basic_view.CF_AS_STR[cf.pos_cash_flow])))
     
-    okay_to_export = _ask_to_continue_entry('Export? ') 
-    while okay_to_export == False:
-        _edit_transactions(transactions)
-        okay_to_export = _ask_to_continue_entry('Export? ') 
+    
+def _display_other_transx(cf: cashflow.CashFlow) -> str:
+    '''Displays a transaction in a list of cash flows, assuming that the cash 
+    flow object in the parameter is not the first in a list or 
+    dictionary of cash flows
+    '''
+    print(("{:^5} {:20} {:20}    {:7.2f} {}".format(
+            cf.day, cf.acct_name, cf.desc, cf.price, 
+            basic_view.CF_AS_STR[cf.pos_cash_flow])))
+
+# _display_cfs_two_dicts calls _sort_transxs to determine how to sort the order
+# of the transactions to be displayed. The user is able to determine such a
+# choice by choosing one of the five attributes, and then deciding if the order 
+# should be reversed (e.g. backwards in alphabetical order, most recent to 
+# earliest date, etc). 
+def _display_cfs_two_dicts(
+    pos_cfs_dict: cashflow.CashFlows, neg_cfs_dict: cashflow.CashFlows, 
+    year: int, month: int) -> str:
+    '''Displays both Positive and Negative Cashflows within a selected 
+    year and month, assuming that both are recorded within the month
+    '''
+    all_transxs = []
+    for pos_cf in pos_cfs_dict[year][month]: 
+        all_transxs.append(pos_cf)
+    for neg_cf in neg_cfs_dict[year][month]:
+        all_transxs.append(neg_cf)
+    sorted_transxs = _sort_transxs(all_transxs)
+    
+    basic_view.print_loading_newline(
+        "\nDisplaying Transactions for Month {}, Year {}".format(month, year))
+    print(("\n{:5} {:20} {:20} {:10} {:4}").format(
+        "Day", "Account", "Description", "Price", "Flow"))
+    print(basic_view.LINE)
+   
+    for transx in sorted_transxs:
+        if transx == sorted_transxs[0]:
+            _display_first_transx(transx)
+        else:
+            _display_other_transx(transx)
+    
+
+def _sort_transxs (transxs: list) -> list:
+    '''Prompts user for a way to sort a list. Returns a list sorted according to 
+    that choice.
+    '''
+    while True:
+        attrib_choice = input(
+        "Sort by [d]ate, [a]ccount, d[e]scription, [p]rice, or [f]low? ")\
+        .strip().lower()
+        if attrib_choice not in ['d', 'a', 'e', 'p', 'f']:
+            print(
+            "{} not an available choice. Select either 'd', 'a', 'e', 'p', or 'f'"\
+            .format(attrib_choice))         
+        else:
+            rev_choice = basic_view.binary_choice(
+        "Display in reverse? ", False, '')
+        if attrib_choice == 'd':
+            return _sort_by_date(transxs, rev_choice)
+        elif attrib_choice == 'a':
+            return _sort_by_acct(transxs, rev_choice)
+        elif attrib_choice == 'e':
+            return _sort_by_desc (transxs, rev_choice)
+        elif attrib_choice == 'p':
+            return _sort_by_price (transxs, rev_choice)
+        elif attrib_choice == 'f':
+            return _sort_by_flow (transxs, rev_choice)
         
-    if okay_to_export:
-        _export_all_information(_filename, transactions, _title)
-        
-        
-if __name__ == '__main__':
-    transactions = finance_model.Transactions()
-    run_user_interface(transactions)
+
+def _sort_by_date (transxs: list, rev: bool) -> list:
+    '''Sorts transactions in a list by date - starting from the most recent
+    if reverse is True, the least so if False  
+    '''
+    for transx in transxs:
+        transx.update_date()
+    return sorted(transxs, key = lambda transx: transx.date, reverse = rev)
+
+
+def _sort_by_acct (transxs: list, rev: bool) -> list:
+    '''Sorts transactions in a list by account - from alphabetically starting
+    from 'a' if reverse is False, and from 'z' if True
+    '''
+    return sorted(transxs, 
+        key = lambda transx: transx.acct_name, reverse = rev)
+    
+
+def _sort_by_desc (transxs: list, rev: bool) -> list:
+    '''Sorts transactions in a list by account - from alphabetically starting
+    from 'a' if reverse is False, and from 'z' if True
+    '''
+    return sorted(transxs, key = lambda transx: transx.desc, reverse = rev)
+
+
+def _sort_by_price (transxs: list, rev: bool) -> list:
+    '''Sorts transactions in a list by price - from least expensive 
+    if reverse if False from 'a' if reverse is False, and from the most if True
+    '''
+    return sorted(transxs, key = lambda transx: transx.price, reverse = rev)
+
+
+def _sort_by_flow (transxs: list, rev: bool) -> list:
+    '''Sorts transaction in a list by booleans - first True, then False. 
+    Displayed False before True when rev's value is True
+    '''
+    return sorted(
+        transxs, key = lambda transx: transx.pos_cash_flow, reverse = not rev)
+
+# DISPLAYING BUDGET ANALYSIS ##################################################
+def _display_budget_month (
+    pos_cfs: cashflow.CashFlows, neg_cfs: cashflow.CashFlows) -> str:
+    '''Handles all information regarding a monthly budget
+    '''
+    _year_choice = basic_view.view_years(pos_cfs.cfs, neg_cfs.cfs, 'Years to select:')
+    _month_choice = basic_view.view_months(_year_choice, pos_cfs.cfs, neg_cfs.cfs, 'Months to select:')
+    
+    display_budget(_year_choice, _month_choice, neg_cfs) 
+        # function to display month budget and spending
+    breakdown_cash_flows (pos_cfs, neg_cfs, _year_choice, _month_choice) 
+    # function to display cash flows and net
+    breakdown_all_accounts (pos_cfs, neg_cfs, _year_choice, _month_choice) 
+    # function to display breakdown by account
+
+
+# display_budget depends on the total net expenses of a certain month. the 
+# cashflow.CashFlows.calc_cf_total method handles this information. Passing
+# pos_cfs is unecessary; both functions contain the same value as budget and 
+# the sum of expenditures and budget variance can be found by calling methods 
+# of neg_cfs. 
+def display_budget (year: int, month: int, neg_cfs: cashflow.CashFlows) -> str:
+    '''Displays formatted strings representing the monthly budget, expenses so far,
+    and the difference
+    '''
+    neg_cfs.insert_budget(100, year, month)
+    net_xps = neg_cfs.return_year_month_total(year, month)
+    
+    print("BUDGET, {} {}:".format(basic_view.MONTHS[month], year))
+    print("Total Budget:{:>17.2f}".format(neg_cfs.budget[month][year]))
+    print("Amount spent so far: {:>10.2f}".format(net_xps))
+    print("-" * 30)
+    
+    print("Amount remaining:{:>13.2f}".format(neg_cfs.budget - net_xps))
+    print("{:>30}".format("=========="))
+    
+
+def breakdown_cash_flows (pos_cfs: cashflow.CashFlows, neg_cfs: cashflow.CashFlows,
+                          year: int, month: int) -> str:
+    '''Displays formatted strings representing a year/month pair's cash flows
+    and their difference
+    '''
+    net_pos_cfs = pos_cfs.return_year_month_total(year, month)
+    net_neg_cfs = neg_cfs.return_year_month_total(year, month)
+    
+    print("CASH FLOW:")
+    print("Positive:{:>21.2f}".format(net_pos_cfs))
+    print("Negative:{:>21.2f}".format(net_neg_cfs))
+    print('-' * 30)
+    
+    print("Net Cash Flow:{:>16.2f}".format(net_pos_cfs - net_neg_cfs))
+    print("{:>30}".format("=========="))
+    
+    
+def breakdown_all_accounts (pos_cfs: cashflow.CashFlows, neg_cfs: cashflow.CashFlows,
+                            year: int, month: int) -> str:
+    '''Displays analysis of all accounts
+    '''
+    print('lol')
+
+
+# VIEWING ANALYSIS OF ONE ACCOUNT #############################################
+def breakdown_one_account (pos_cfs: cashflow.CashFlows, 
+    neg_cfs: cashflow.CashFlows) -> str:
+    '''Displays analysis of one account
+    '''
+    _year_choice = basic_view.view_years(
+        pos_cfs.cfs, neg_cfs.cfs, 'Years to select:')
+    _month_choice = basic_view.view_months(
+        _year_choice, pos_cfs.cfs, neg_cfs.cfs, 'Months to select:')
