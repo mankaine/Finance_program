@@ -1,5 +1,5 @@
 # finance_budget_menu
-# By William Khaine
+# By mankaine
 # August 11, 2016
 #
 # Menu module of budget option, selected from main menu
