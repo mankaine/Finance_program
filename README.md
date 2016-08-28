@@ -4,6 +4,8 @@ Author: mankaine
 
 This program is intended to log and finance your budget.
 
+Written in the Python language.
+
 ## CHANGELOG
 ### 08/28/2016
 Version 1.0 uploaded. Now contains import, settings, and viewing budget breakdown. Other modules updated to be more accurate in preserving data.
