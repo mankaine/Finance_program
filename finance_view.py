@@ -1,4 +1,8 @@
-# finance_view. Deals specifically with viewing transactions as 
+# finance_view.py
+# by mankaine
+# July 2016
+
+# Deals specifically with viewing transactions as 
 # selected in the main menu.
 #
 # This module shouldn't be confused with basic_view; that module
