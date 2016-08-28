@@ -1,9 +1,10 @@
-# basic_view module. Implements the shell user interface elements that are used
-# by more than one module.
- 
-# By William Khaine
+# basic_view.py 
+# By mankaine
 # July 11, 2016
 
+# Implements the shell user interface elements that are used
+# by more than one module.
+ 
 # MONTHS is used to switch numbers representing the order of months into
 # their written names. It is called on by finance_edit._view_transxs,
 # finance_export.handle_export_choice, finance_export._view_months,
