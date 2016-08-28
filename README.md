@@ -5,6 +5,9 @@ Author: mankaine
 This program is intended to log and finance your budget.
 
 ## CHANGELOG
+### 08/28/2016
+Version 1.0 uploaded. Now contains import, and viewing budget breakdown.
+
 ### 07/23/2016
 First part of v.03 of finance program uploaed. Now features separate modules for a main menu, entering transactions, and viewing , editing, and exporting transactions. Creates room available to code for budget. Previous version modules removed.
 
