@@ -1,7 +1,8 @@
-# finance_edit module. Implements user interface aspect that edits transaction.
-# By William Khaine.
+# finance_edit.py
+# By mankaine
 # July 12, 2016
 
+# Implements user interface aspect that edits transaction.
 import cashflow
 import finance_entry
 import basic_view
