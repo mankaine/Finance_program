@@ -1,4 +1,5 @@
-# finance_budget_view_one_month by William Khaine. 
+# finance_budget_view_one_month.py
+# by mankaine. 
 # August 7, 2016
 # 
 # Module that is specific to displaying user's budget information and 
