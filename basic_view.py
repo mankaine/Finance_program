@@ -30,7 +30,7 @@ CF_AS_STR = {True: "+", False: '-'}
 
 # KILLA_PHRASE is an auto exit word out of any command. It breaks out of a function
 # and the flow of control defaults to the menu from where a function was called. 
-KILL_PHRASE = "HARAMBE111"
+KILL_PHRASE = "BREAKBREAK111"
 
 
 # print_loading displays to the user that the program is moving on to another 
