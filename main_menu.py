@@ -1,7 +1,8 @@
-# main_menu. Implements main menu in shell user interface.
-# By William Khaine
+# main_menu. 
+# By mankaine
 # July 12, 2016
 
+# Implements main menu in shell user interface.
 # See read_me.txt for example implementation.
 
 import finance_entry
