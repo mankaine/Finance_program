@@ -1,4 +1,5 @@
-# finance_budget_menu by William Khaine. 
+# account.py 
+# by mankaine 
 # August 7, 2016
 # 
 # Manages and calculates information regarding user input and budgets.
