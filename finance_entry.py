@@ -91,7 +91,7 @@ def enter_day() -> int:
             print("{} outside of the acceptable range. Try again.\n".format(
                                                                     day))
         else:
-            return int(day)
+            return int(day) 
 
 
 def enter_price() -> int:
