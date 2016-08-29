@@ -1,6 +1,6 @@
 # enter_transaction module. Enables user to input transactions in the 
 # shell as part of the user interface.
-# By William Khaine
+# By mankaine
 # July 12, 2016
 
 import cashflow
@@ -36,24 +36,6 @@ def handle_entry_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlo
             print('{} is an invalid choice. Choose either i or m'.format(pace))
 
 
-# The beginning of each transaction is recorded as a revenue or expense. 
-# _choose_expense_or_revenue helps to determine which to choose. 
-def _choose_expense_or_revenue() -> bool:
-    '''Prompts user to choose symbols representing an expense or revenue transaction.
-    Continues to prompt user for such characters until a valid one is presented.
-    '''
-    still_entering_type = True
-    
-    while still_entering_type:
-        r_or_e = input("[r]evenue or [e]xpense? ").strip()
-        if r_or_e == 'r':
-            return True
-        if r_or_e == 'e':
-            return False
-        else:
-            print("{} not an option. Type in either r or e".format(r_or_e))
-
-
 # enter_year, enter_month, and enter_day all construct a Transaction class
 # to check if the input is within range without having to construct a Revenue
 # or Expense class.
@@ -65,6 +47,8 @@ def enter_year () -> int:
         trans = cashflow.CashFlow()
         try:
             year = (input("Year: ").strip())
+            if year == basic_view.KILL_PHRASE:
+                return -1
             trans.update_year(year)
         except:
             print("""{} outside of the acceptable range for year entries. 
@@ -81,6 +65,8 @@ def enter_month() -> int:
         trans = cashflow.CashFlow()
         try:
             month = (input("Month (number): ").strip())
+            if month == basic_view.KILL_PHRASE:
+                return -1
             trans.update_month(month)
         except:
             print("""{} outside of the acceptable range for month entries. 
@@ -97,11 +83,15 @@ def enter_day() -> int:
         trans = cashflow.CashFlow()
         try:
             day = (input("Day: ").strip())
+            if day == basic_view.KILL_PHRASE:
+                return -1
             trans.update_day(day)
         except: 
-            print("{} outside of the acceptable range. Try again.\n".format(day))
+            print("{} outside of the acceptable range. Try again.\n".format(
+                                                                    day))
         else:
             return int(day)
+
 
 def enter_price() -> int:
     '''Prompts user for a valid price
@@ -111,11 +101,14 @@ def enter_price() -> int:
         trans = cashflow.CashFlow()
         try: 
             price = input("Price: ").strip()
+            if price == basic_view.KILL_PHRASE:
+                return -1
             trans.update_price(price)
         except:
             print("{} not an option. Try again.\n".format(price))
         else:
             return float(price)
+        
         
 ## ENTERING INDIVIDUAL TRANSACTIONS ###########################################
 # After printing a confirmation message, _enter_indiv_entry_loop will prompt user
@@ -131,8 +124,10 @@ def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, outflows: cashflow.Cash
     
     entering = True
     while entering:
-        transx = _enter_indiv_entry()   
-        if transx.pos_cash_flow:
+        transx = _enter_indiv_entry()
+        if transx == None:
+            break
+        elif transx.pos_cash_flow:
             inflows.insert_cf(transx)
         else:
             outflows.insert_cf(transx)         
@@ -145,9 +140,11 @@ def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, outflows: cashflow.Cash
 # updates the value of the Transaction object created in each Revenue or Expense, and then the
 # Revenue or Expense object itself. This redundancy updates the memory reference. When the 
 # transaction is completely entered, it is appended to the appropriate list of Revenue or Expense
-# objects and allowed to be viwed by the user using _view_trans. 
+# objects and allowed to be viwed by the user using _view_trans. The function 
+# _enter_indiv_entry will return None if the user decides to execute the 
+# kill phrase. 
 
-def _enter_indiv_entry () -> cashflow.CashFlow:
+def _enter_indiv_entry () -> cashflow.CashFlow or None:
     '''Prompts user to enter an individual journal entry to create a new
     Transaction object. Returns that object.
     '''
@@ -156,25 +153,43 @@ def _enter_indiv_entry () -> cashflow.CashFlow:
     cash_flow = cashflow.CashFlow()
 
     cf_dir = _enter_cf_dir()
+    if cf_dir == None:
+        return
     cash_flow.update_cash_flow_direction(cf_dir)
     print()     
+    
     year = enter_year()
-    cash_flow.update_year(year) 
+    if year == -1:
+        return
+    cash_flow.update_year(year)
+    
     month = enter_month()
+    if month == -1: 
+        return
     cash_flow.update_month(month)
+    
     day = enter_day()
+    if day == -1:
+        return
     cash_flow.update_day(day)
     cash_flow.update_date()
     print() 
+    
     acct = input("Account: ").strip()
-    cash_flow.update_acct(acct)  
+    if acct == "":
+        return 
+    cash_flow.update_acct(acct)
+      
     desc = input("Description: ").strip()
+    if desc == "":
+        return
     cash_flow.update_desc(desc) 
     print() 
+    
     fncl_amt = enter_price()
+    if fncl_amt == -1:
+        return 
     cash_flow.update_price(fncl_amt)
-
-    # dr_transx_lines now contains both debit and credit TransactionLine objects.
     
     return cash_flow
                 
@@ -221,6 +236,8 @@ def _enter_cf_dir () -> bool:
             return True
         elif cf_question == 'n':
             return False
+        elif cf_question == basic_view.KILL_PHRASE:
+            return None
         else:
             print("{} not an option. Select either 'p' or 'n'\n".format(cf_question))
     
