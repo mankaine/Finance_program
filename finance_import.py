@@ -1,6 +1,6 @@
 # finance_import.py
-# By mankaine
-# August 2016
+# by mankaine
+# August 2, 2016
 
 # User interface module that allows the user to import a .txt file containing 
 # information about transactions and record them into the collections 
