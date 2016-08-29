@@ -1,9 +1,8 @@
 # finance_budget_menu
 # By mankaine
 # August 11, 2016
-#
-# Menu module of budget option, selected from main menu
 
+# Menu module of budget option, selected from main menu
 
 import finance_budget_edit
 import finance_budget_view_one_month
