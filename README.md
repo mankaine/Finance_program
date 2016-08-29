@@ -7,10 +7,10 @@ Author: mankaine
 This program is intended to log and finance your budget.
 
 Features:
--Enter transactions in a shell user interface
--Import, edit, and view transactions
--View transactions
--Set budgets
+Enter transactions in a shell user interface
+Import, edit, and view transactions
+View transactions
+Set budgets
 
 Written in Python.
 
