@@ -1,5 +1,5 @@
-# finance_budget_menu
-# By mankaine
+# finance_budget_menu.py
+# by mankaine
 # August 11, 2016
 
 # Menu module of budget option, selected from main menu
