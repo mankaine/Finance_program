@@ -1,5 +1,5 @@
-# main_menu. 
-# By mankaine
+# main_menu.py
+# by mankaine
 # July 12, 2016
 
 # Implements main menu in shell user interface.
