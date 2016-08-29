@@ -1,5 +1,5 @@
 # basic_view.py 
-# By mankaine
+# by mankaine
 # July 11, 2016
 
 # Implements the shell user interface elements that are used
