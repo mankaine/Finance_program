@@ -1,5 +1,5 @@
 # finance_edit.py
-# By mankaine
+# by mankaine
 # July 12, 2016
 
 # Implements user interface aspect that edits transaction.
