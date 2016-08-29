@@ -18,7 +18,7 @@ def view_acct_by_months(
     inflows: cashflow.CashFlows, outflows: cashflow.CashFlows, 
     accts: [account.Account]) -> str:
     '''Displays to user a breakdown of accounts in a month 
-    '''
+    ''' 
     _year = basic_view.view_years(
             inflows.cfs, outflows.cfs, "Years containing accounts")
     _month = basic_view.view_months(
