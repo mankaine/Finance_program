@@ -1,7 +1,8 @@
-# enter_transaction module. Enables user to input transactions in the 
-# shell as part of the user interface.
+# enter_transaction.py 
 # By mankaine
 # July 12, 2016
+
+# Enables user to input transactions in the shell as part of the user interface.
 
 import cashflow
 import basic_view
