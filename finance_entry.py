@@ -1,5 +1,5 @@
 # enter_transaction.py 
-# By mankaine
+# by mankaine
 # July 12, 2016
 
 # Enables user to input transactions in the shell as part of the user interface.
