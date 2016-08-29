@@ -1,5 +1,5 @@
 # cashflow.py
-# By mankaine
+# by mankaine
 # July 22, 2016
 
 # Contains the information and classes necessary to 
