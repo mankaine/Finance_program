@@ -1,6 +1,6 @@
 # finance_view.py
 # by mankaine
-# July 2016
+# July 14, 2016
 
 # Deals specifically with viewing transactions as 
 # selected in the main menu.
