@@ -1,7 +1,7 @@
 # settings.py
-# By mankaine
+# by mankaine
 # August 26, 2016
-#
+
 # User interface that enables edit to settings
 import basic_view
 
