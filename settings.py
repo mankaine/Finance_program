@@ -89,7 +89,7 @@ user_cred = """
 Program made by William Khaine
 Summer 2016
 Independent Project
-Version 1
+Version 1.0.1
 """
 
 
