@@ -93,7 +93,7 @@ def menu_input(menu: str, top: int) -> int:
     
         else:
             if choice not in range(1, top):
-                print('{} not among options. Try again.'.format(choice))
+                print('{} not among options. Try again.'.format(choice)) 
                 choice = input("Your input: ")
             else:
                 still_looking = False
