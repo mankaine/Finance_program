@@ -59,7 +59,7 @@ def handle_export_choice (
 def file_to_export () -> str:
     '''Prompts user for a file name until a valid one is provided
     '''
-    file_searching = True
+    file_searching = True 
     while file_searching:
         file_name = input("\nSelect file to export: ").strip()
         print("Determining if file is available...".format(file_name))
