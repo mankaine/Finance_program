@@ -10,6 +10,8 @@ Written in the Python language.
 ### 8/29/2016
 Updated to ver. 1.0.1. Now contains revised data entry and edit modules. Now users can break out of entering transaction information and edit information is displayed more accurately. Comments on all modules have been made more consistent. 
 
+Closed older branches.
+
 ### 08/28/2016
 Version 1.0 uploaded. Now contains import, settings, and viewing budget breakdown. Other modules updated to be more accurate in preserving data.
 
