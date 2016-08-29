@@ -1,5 +1,5 @@
 # finance_export.py
-# By mankaine
+# by mankaine
 # July 15, 2016
 
 # Exports transactions entered to a .txt file specified by user.
