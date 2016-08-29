@@ -1,19 +1,19 @@
 # FINANCE PROGRAM
-README.md
-Published 8 April 2016
+README.md<br />
+Published 8 April 2016<br />
 Author: mankaine
 
 ## DESCRIPTION
 This program is intended to log and finance your budget. <br />
-<br />
+
 Features:<br />
 Enter transactions in a shell user interface<br />
 Import, edit, and view transactions<br />
 View transactions<br />
 Set budgets<br />
-<br />
+
 Written in Python.<br />
-<br />
+
 ## CHANGELOG
 ### 8/29/2016
 Updated to ver. 1.0.1. Now contains revised data entry and edit modules. <br />
