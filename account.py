@@ -1,7 +1,7 @@
 # account.py 
 # by mankaine 
 # August 7, 2016
-# 
+
 # Manages and calculates information regarding user input and budgets.
 
 from collections import namedtuple
