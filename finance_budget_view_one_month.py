@@ -1,7 +1,7 @@
 # finance_budget_view_one_month.py
-# by William Khaine
+# by mankaine
 # August 11, 2016
-#
+
 # Execute code that creates a shell user interface, which will 
 # enable user to view budget analysis
 
