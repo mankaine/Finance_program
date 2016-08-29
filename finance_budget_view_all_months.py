@@ -1,5 +1,5 @@
 # finance_budget_view_all_months.py 
-# By mankaine
+# by mankaine
 # August 27, 2016
 
 # Shell user interface module that allows user to one budget, of all months.
