@@ -1,7 +1,7 @@
 # FINANCE PROGRAM
 README.md<br />
+Author: mankaine<br />
 Published 8 April 2016<br />
-Author: mankaine
 
 ## DESCRIPTION
 This program is intended to log and finance your budget. <br />
