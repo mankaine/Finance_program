@@ -1,8 +1,8 @@
 # finance_export
-# 
-# Exports transactions entered to a .txt file specified by user.
-# By William Khaine
+# By mankaine
 # July 15, 2016
+
+# Exports transactions entered to a .txt file specified by user.
 
 import finance_view
 import basic_view
