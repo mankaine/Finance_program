@@ -145,3 +145,4 @@ def remove_duplicates (accts: [Account]) -> None:
             acct_names_reviewed.append(acct.name)
         else:
             accts.remove(acct)
+ 
