@@ -20,7 +20,7 @@ First part of v.03 of finance program uploaed. Now features separate modules for
 
 ### 06/13/2016
 v.02 uploaded in two modules, finance_view and finance_model. Extent of program is that it records a list of transactions by date, category, description, and price. Creates an list of these transactions exportable to a .txt document.
-
+ 
 ### 04/08/2016
 v.01 of Finance_program uploaded
 
