@@ -20,7 +20,7 @@ import finance_edit
 def handle_entry_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows) -> None:
     '''Prompts user to choose whether to enter transactions by month 
     or individually, and filters choices
-    '''
+    ''' 
     entering_pace = True
     while entering_pace:
         pace = input("Enter [i]ndividually or by [m]onth? ").strip()
