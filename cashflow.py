@@ -1,7 +1,6 @@
 # cashflow.py
 # By mankaine
-
-# July 2016
+# July 22, 2016
 
 # Contains the information and classes necessary to 
 # produce positive and negative cash flow.
