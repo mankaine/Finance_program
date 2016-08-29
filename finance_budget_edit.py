@@ -15,7 +15,7 @@ ATTRIBUTES = ['Date', 'Account', 'Description', 'Price', 'Flow']
 # OutsideListRangeError is raised when a user enters a value representing
 # a month or year to edit that is not been yet entered as having a transaction.
 class OutsideListRangeError (Exception):
-    pass
+    pass 
 
 
 # INDIVIDUAL EDITING ###########################################################################
