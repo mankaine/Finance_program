@@ -26,9 +26,8 @@ MAIN MENU:
 4. Export Transactions
 5. View Transactions
 6. Budget Accounts
-7. Settings
-8. Access Settings
-9. Exit
+7. Access Settings
+8. Exit
 '''
 
 # run_user_interface implements main_menu_input from the basic_view module
@@ -86,14 +85,10 @@ def _main_menu_options (choice: int, inflows: cashflow.CashFlows,
             finance_budget_menu.handle_budget_choice(inflows, outflows)
   
     elif choice == 7:
-        basic_view.print_loading_newline("GOING TO SETTINGS")
-        basic_view.print_loading_newline("RETURNING TO MAIN MENU")        
-
-    elif choice == 8:
         basic_view.print_loading_newline("ACESSING SETTINGS")
         settings.run_setting_interface()
 
-    elif choice == 9:
+    elif choice == 8:
         basic_view.print_loading_newline("EXITING PROGRAM")
         
 
@@ -113,9 +108,9 @@ def run_user_interface():
     
     using_program = True
     while using_program:
-        choice = basic_view.menu_input(MAIN_MENU, 10)
+        choice = basic_view.menu_input(MAIN_MENU, 9)
         _main_menu_options(choice, inflows, outflows)
-        if choice in [9, basic_view.KILL_PHRASE]:
+        if choice in [8, basic_view.KILL_PHRASE]:
             using_program = False
     basic_view.print_loading("PROGRAM EXITED")
 
