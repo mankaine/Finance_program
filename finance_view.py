@@ -24,7 +24,7 @@ def handle_view_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlow
 """
     while True:
         menu_choice = basic_view.menu_input(view_menu, 5)
-        if menu_choice == 1:
+        if menu_choice == 1: 
             _display_transx_month(inflows, outflows)
             basic_view.print_loading_newline("Returning to Display Menu")
         elif menu_choice == 2:
