@@ -102,3 +102,4 @@ def run_setting_interface():
         _setting_menu_options(choice)
         if choice in [4, basic_view.KILL_PHRASE]:
             acessing_settings = False
+ 
