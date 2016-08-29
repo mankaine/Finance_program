@@ -86,7 +86,7 @@ def _display_header(acct: account.Account) -> str:
 def _display_budget (acct: account.Account) -> str:
     '''Displays to the screen Account information as set in Account.budgets
     '''
-    _display_header(acct)
+    _display_header(acct) 
     finance_budget_view_one_month.force_attrib_recalc([acct])
     for year in acct.budgets:
         year_not_printed = True
