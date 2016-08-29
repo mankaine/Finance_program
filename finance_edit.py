@@ -172,7 +172,7 @@ def select_transx_index (inflows: dict, outflows: dict, year: int, month: int) -
             print("{} outside of the range 1 to {}. Try again.".format(
                 number_choice, pcf_len + ncf_len))
         else:
-            selecting_transx = False
+            selecting_transx = False 
             return pcf_len, number_choice - 1
         
         
