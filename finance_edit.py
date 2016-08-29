@@ -3,10 +3,6 @@
 # July 12, 2016
 
 # Implements user interface aspect that edits transaction.
-import cashflow
-import finance_entry
-import basic_view
-
 
 ATTRIBUTES = ['Date', 'Account', 'Description', 'Price', 'Flow']
 
@@ -65,6 +61,7 @@ def handle_edit_choice (inflows: cashflow.CashFlows,
             _num_choice)
         
         handle_edit(_transx, inflows, outflows)
+        _update_cfs(inflows, outflows)
         
         print("\nDisplaying edited transactions:")
         view_transxs(_year_choice, _month_choice, inflows.cfs, outflows.cfs)
@@ -101,14 +98,15 @@ def _view_tranxs_formatted (message: str, year: int, month: int,
                             master_dict: dict, list_boost: int) -> str:
     '''Displays possible revenues to edit within a year and month
     '''
-    print("{:^80}".format(message))
-    print(basic_view.LINE)
-    print(("\n{:5} {:20} {:20} {:10} {:4}").format(
-        "Day", "Account", "Description", "Price", "Flow"))
-    print(basic_view.LINE)
+    print("{:^84}".format(message))
+    print(basic_view.LINE + ("-" * 7))
+    print(("\n{:5} {:10} {:28} {:24} {:10} {:4}").format("No.",
+        "Date", "Account", "Description", "Price", "Flow"))
+    print(basic_view.LINE + ("-" * 7))
 
     if year in master_dict:
-        if month in master_dict[year]: 
+        if month in master_dict[year]:
+            master_dict[year][month].sort(key = lambda transx: transx.date) 
             for transx in master_dict[year][month]:
                 if master_dict[year][month][0] == transx:
                     print("{:3}. {:2}/{:2}/{:4} {:30}{:25}{:3}{:7.2f} {}".format(
@@ -122,6 +120,8 @@ def _view_tranxs_formatted (message: str, year: int, month: int,
                         transx.month, transx.day, transx.year, transx.acct_name,
                         transx.desc, transx.price, 
                         basic_view.CF_AS_STR[transx.pos_cash_flow]))
+        else:
+            print("\n{:^80}\n".format("No entries"))
     else:
         print("\n{:^80}\n".format("No entries"))
 
@@ -187,7 +187,25 @@ def select_transx (pcfs: dict, ncfs: dict, year: int,
     elif pcf_len == 0:
         return ncfs[year][month][num_choice - 1]
  
+
+# Necessary to sort inflows and outflows - otherwise the shell UI will display
+# transactions that are savings in expenses and vice versa
+def _update_cfs (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows) -> None:
+    '''Places all positive cashflows in pcfs and negative cash flows in ncfs 
+    '''
+    add_to_ncfs = inflows.filter_transx_flows(True)
+    add_to_pcfs = outflows.filter_transx_flows(False)
     
+    inflows.merge_dicts(add_to_pcfs)
+    outflows.merge_dicts(add_to_ncfs)
+    
+    add_to_pcfs = inflows.resort_dicts_by_date()
+    add_to_ncfs = outflows.resort_dicts_by_date()
+    
+    inflows.merge_dicts(add_to_pcfs)
+    outflows.merge_dicts(add_to_ncfs)
+    
+
 # CHOOSING WHAT TO EDIT ###################################################################
 # Now that the transaction has been chosen, the program must figure out how to edit it.
 # It requests the user to answer this question, and passes the answer
@@ -209,12 +227,13 @@ def _select_attrib (
             choice = basic_view.binary_choice(
             "Are you sure you want to delete this transaction? ", False, "")
             if choice:
-                 _delete_transx(transx, inflows, outflows)
-                 break
+                _delete_transx(transx, inflows, outflows)
+                break
         elif attrib_str.title() not in attribs:
             print("{} not an option. Select one of the following: {}.".format(attrib_str, ATTRIBUTES)) 
         else:
             return attrib_str.title()
+
 
 def _delete_transx(
     transx: cashflow.CashFlow, inflows: cashflow.CashFlows, 
@@ -294,8 +313,8 @@ def _edit_flow (transx: cashflow.CashFlow) -> None:
     result
     '''
     print("Enter new cash flow")
-    cf = finance_entry._enter_cf_dir()
-    transx.update_cash_flow_direction(cf)
+    new_flow = finance_entry._enter_cf_dir()
+    transx.update_cash_flow_direction(new_flow)
     print()
 
 
