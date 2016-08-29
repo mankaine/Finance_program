@@ -76,7 +76,7 @@ class Account:
     
     def update_budget (self, new_budget: float, month: int, year: int):
         '''Updates budget value
-        '''
+        ''' 
         self.budgets[year][month] = self.budgets[year][month]._replace(
             budget = new_budget)
     
