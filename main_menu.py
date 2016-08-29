@@ -17,7 +17,7 @@ import basic_view
 
 import cashflow
 
-
+ 
 MAIN_MENU = '''
 MAIN MENU:
 1. Enter Transactions
