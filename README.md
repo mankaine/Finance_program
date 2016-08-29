@@ -14,9 +14,10 @@ Set budgets<br />
 
 Written in Python.<br />
 
-## CHANGELOG
+## REPOSITORY CHANGELOG
 ### 8/29/2016
-Updated to ver. 1.0.1. Now contains revised data entry and edit modules. <br />
+Updated to ver. 1.0.1. <br />
+Now contains revised data entry and edit modules. <br />
 Now users can break out of entering transaction information and edit information is displayed more accurately. <br />
 Comments on all modules have been made more consistent. <br />
 Removed duplicate menu options from main_menu.py.<br />
