@@ -127,7 +127,7 @@ class CashFlows:
     
     def merge_dicts (self, dict_to_merge: dict) -> None:
         '''Merges the dictionary in the argument with the CashFlows dict
-        '''
+        ''' 
         for year in dict_to_merge:
             if year not in self.cfs:
                 self.cfs[year] = {}
