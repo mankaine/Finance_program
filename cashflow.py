@@ -1,5 +1,9 @@
-# cashflow module. Contains the information and classes necessary to 
-# produce positive and negative cash flow.
+# cashflow module. 
+# by mankaine
+# July 22, 2016
+
+# Contains the information and classes necessary to produce positive and
+# negative cash flow.
 
 class OutsideYearRange(Exception):
     pass
