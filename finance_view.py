@@ -1,8 +1,4 @@
-# finance_view.py
-# by mankaine
-# July 14, 2016
-
-# Deals specifically with viewing transactions as 
+# finance_view. Deals specifically with viewing transactions as 
 # selected in the main menu.
 #
 # This module shouldn't be confused with basic_view; that module
@@ -24,7 +20,7 @@ def handle_view_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlow
 """
     while True:
         menu_choice = basic_view.menu_input(view_menu, 5)
-        if menu_choice == 1: 
+        if menu_choice == 1:
             _display_transx_month(inflows, outflows)
             basic_view.print_loading_newline("Returning to Display Menu")
         elif menu_choice == 2:
@@ -102,7 +98,7 @@ def _display_first_transx(cf: cashflow.CashFlow) -> str:
     '''
     print(("{:^5} {:20} {:20} {:3}{:7.2f} {}".format(
             cf.day, cf.acct_name, cf.desc, cf.currency, cf.price, 
-            basic_view.CF_AS_STR[cf.pos_cash_flow])))
+            basic_view.CF_AS_STR[cf.is_sav])))
     
     
 def _display_other_transx(cf: cashflow.CashFlow) -> str:
@@ -112,7 +108,7 @@ def _display_other_transx(cf: cashflow.CashFlow) -> str:
     '''
     print(("{:^5} {:20} {:20}    {:7.2f} {}".format(
             cf.day, cf.acct_name, cf.desc, cf.price, 
-            basic_view.CF_AS_STR[cf.pos_cash_flow])))
+            basic_view.CF_AS_STR[cf.is_sav])))
 
 # _display_cfs_two_dicts calls _sort_transxs to determine how to sort the order
 # of the transactions to be displayed. The user is able to determine such a
@@ -214,4 +210,4 @@ def _sort_by_flow (transxs: list, rev: bool) -> list:
     Displayed False before True when rev's value is True
     '''
     return sorted(
-        transxs, key = lambda transx: transx.pos_cash_flow, reverse = not rev)
+        transxs, key = lambda transx: transx.is_sav, reverse = not rev)
