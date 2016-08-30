@@ -11,16 +11,17 @@ import finance_edit
 
 # ENTERING TRANSACTION ########################################################
 # handle_choice_one is the first function that enter_transaction implements. It 
-# contains all the monthly and individual transaction entry functions, and prompts
-# the user to choose between the two until the user indicates that he or she no longer
-# wishes to enter such information. After the function finishes looping through the 
-# individual or monthly transactions, the function prompts the user whether to continue,
-# and determines if that choice is valid. It will continue prompting for that choice
-# until a valid one is made. 
-def handle_entry_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows) -> None:
+# contains all the monthly and individual transaction entry functions, and 
+# prompts the user to choose between the two until the user indicates that he 
+# or she no longer wishes to enter such information. After the function finishes
+# looping through the individual or monthly transactions, the function prompts 
+# the user whether to continue, and determines if that choice is valid. It will
+# continue prompting for that choice until a valid one is made. 
+def handle_entry_choice (inflows: cashflow.CashFlows, 
+                         outflows: cashflow.CashFlows) -> None:
     '''Prompts user to choose whether to enter transactions by month 
     or individually, and filters choices
-    ''' 
+    '''
     entering_pace = True
     while entering_pace:
         pace = input("Enter [i]ndividually or by [m]onth? ").strip()
@@ -35,6 +36,7 @@ def handle_entry_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlo
             break
         else:
             print('{} is an invalid choice. Choose either i or m'.format(pace))
+    basic_view.print_loading_newline("RETURNING TO MAIN MENU")
 
 
 # enter_year, enter_month, and enter_day all construct a Transaction class
@@ -91,7 +93,7 @@ def enter_day() -> int:
             print("{} outside of the acceptable range. Try again.\n".format(
                                                                     day))
         else:
-            return int(day) 
+            return int(day)
 
 
 def enter_price() -> int:
@@ -112,12 +114,13 @@ def enter_price() -> int:
         
         
 ## ENTERING INDIVIDUAL TRANSACTIONS ###########################################
-# After printing a confirmation message, _enter_indiv_entry_loop will prompt user
-# for information to enter an individual revenue or expense. This is included
-# in the function _enter_indiv_entry. Afterward, it will prompt user to continue, 
-# and for both questions will continuously prompt the question until a valid 
-# answer is provided. 
-def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, outflows: cashflow.CashFlow) -> None:
+# After printing a confirmation message, _enter_indiv_entry_loop will prompt 
+# user for information to enter an individual revenue or expense. This is 
+# included in the function _enter_indiv_entry. Afterward, it will prompt user 
+# to continue, and for both questions will continuously prompt the question 
+# until a valid answer is provided. 
+def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, 
+                             outflows: cashflow.CashFlow) -> None:
     '''Prompts a loop for user to enter transactions individually, without specific 
     regard to month. Appends them to a dictionary
     '''
@@ -128,7 +131,7 @@ def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, outflows: cashflow.Cash
         transx = _enter_indiv_entry()
         if transx == None:
             break
-        elif transx.pos_cash_flow:
+        elif transx.is_sav:
             inflows.insert_cf(transx)
         else:
             outflows.insert_cf(transx)         
@@ -137,10 +140,11 @@ def _enter_indiv_entry_loop (inflows: cashflow.CashFlow, outflows: cashflow.Cash
         entering = basic_view.binary_choice(
             "Enter new transaction? ", False, '')
 
-# Each individual aspect of the transaction prompts the user to enter the relevant information,
-# updates the value of the Transaction object created in each Revenue or Expense, and then the
-# Revenue or Expense object itself. This redundancy updates the memory reference. When the 
-# transaction is completely entered, it is appended to the appropriate list of Revenue or Expense
+# Each individual aspect of the transaction prompts the user to enter the 
+# relevant information, updates the value of the Transaction object created in 
+# each Revenue or Expense, and then the Revenue or Expense object itself. This
+# redundancy updates the memory reference. When the transaction is completely 
+# entered, it is appended to the appropriate list of Revenue or Expense
 # objects and allowed to be viwed by the user using _view_trans. The function 
 # _enter_indiv_entry will return None if the user decides to execute the 
 # kill phrase. 
@@ -199,7 +203,8 @@ def _enter_indiv_entry () -> cashflow.CashFlow or None:
 # _enter_month_entry is formatted similar to _enter_indiv_entry_loop, save that 
 # the former implements year and month entry before calling functions
 # enter_month_revenue and enter_month_expense. 
-def _entries_in_month_loop (inflows: cashflow.CashFlow, outflows: cashflow.CashFlow) -> None:
+def _entries_in_month_loop (inflows: cashflow.CashFlow, 
+                            outflows: cashflow.CashFlow) -> None:
     '''Prompts user to enter transactions all occuring in the specified 
     month and year
     '''
@@ -209,7 +214,8 @@ def _entries_in_month_loop (inflows: cashflow.CashFlow, outflows: cashflow.CashF
     month = enter_month()
 
     entering_transx = True
-    basic_view.print_loading("Entering Transactions for the Year {}, Month {}".format(year, month))
+    basic_view.print_loading(
+        "Entering Transactions for the Year {}, Month {}".format(year, month))
     
     while entering_transx:
         basic_view.print_loading("Entering New Transaction")
@@ -223,7 +229,8 @@ def _entries_in_month_loop (inflows: cashflow.CashFlow, outflows: cashflow.CashF
         _view_transx(transx, inflows, outflows)
        
         entering_transx = basic_view.binary_choice(
-            ("Enter new transaction for month {}, year {}? ".format(month, year)), False, '\n')
+            ("Enter new transaction for month {}, year {}? ".format(
+                                            month, year)), False, '\n')
         if entering_transx == False:
             basic_view.print_loading_newline("RETURNING TO MAIN MENU")
 
@@ -240,10 +247,12 @@ def _enter_cf_dir () -> bool:
         elif cf_question == basic_view.KILL_PHRASE:
             return None
         else:
-            print("{} not an option. Select either 'p' or 'n'\n".format(cf_question))
+            print(
+            "{} not an option. Select either 'p' or 'n'\n".format(cf_question))
     
 
-def _enter_month_transx(year: int, month: int, cf_dir: bool) -> cashflow.CashFlow:
+def _enter_month_transx(year: int, month: int, cf_dir: bool
+                        ) -> cashflow.CashFlow:
     '''Enters transaction based on month, year, and cash flow
     '''
     cash_flow = cashflow.CashFlow()
@@ -276,7 +285,7 @@ def _view_transx (
     outflows:cashflow.CashFlows) -> str:
     '''Displays formatted transaction
     '''
-    cf_symbol = basic_view.CF_AS_STR[cf.pos_cash_flow]
+    cf_symbol = basic_view.CF_AS_STR[cf.is_sav]
     
     print("\nUpdated transaction:")
     print("{:12} {:10} {:20} {:20}  {:10} {}".format(
