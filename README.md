@@ -185,6 +185,35 @@ Enter new transaction for month 7, year 2016? no
 </code></pre>
 
 #### IMPORTING TRANSACTIONS
+Transactions that are imported must be formatted, stating the day, description, account, price, and flow:
+<pre><code>
+         August 2016 Transactions                            
+--------------------------------------------------------------------------------
+                                    Revenues                                    
+--------------------------------------------------------------------------------
+Day       Account                       Description              Price      Flow
+--------------------------------------------------------------------------------
+ 7        Cash                          For The Hat              $    20.00 +
+ 4        Cash                          For Allowance                100.00 +
+Net Revenues ................................................... $   120.00
+                                                                  ----------
+
+                                    Expenses                                    
+--------------------------------------------------------------------------------
+Day       Account                       Description              Price      Flow
+--------------------------------------------------------------------------------
+ 4        Fast Food                     McDonald's               $     1.52 -
+ 5        Clothing                      JCPenny                        0.86 -
+ 5        Clothing                      JCPenny                       28.35 -
+ 6        Car Maintenance               Pep Boys                     223.65 -
+ 7        Fast Food                     The Hat                        7.94 -
+Net Expenses ................................................... $   293.11
+                                                                  ----------
+Net Income ..................................................... $  -173.11
+                                                                  ==========
+</code></pre>
+While the lines and subtotals are not considered, the bits the processor uses is the month; year;  the "Revenues" and "Expenses" strings; and the transaction information per line. All of this information is reproduced in the module to ensure that the interpreter imports the data correctly, and provides the user a chance to edit the function if anything goes wrong.
+
 <pre><code>
 MAIN MENU:
 1. Enter Transactions
