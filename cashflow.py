@@ -1,8 +1,4 @@
-# cashflow.py
-# by mankaine
-# July 22, 2016
-
-# Contains the information and classes necessary to 
+# cashflow module. Contains the information and classes necessary to 
 # produce positive and negative cash flow.
 
 class OutsideYearRange(Exception):
@@ -16,8 +12,6 @@ class OutsideDayRange(Exception):
 
 class OutsideAccountRange(Exception):
     pass
-
-ACCOUNT_INDEX = {}
 
 from datetime import date
 import basic_view
@@ -82,7 +76,7 @@ class CashFlows:
         return total_in_timeframe
     
     
-    def filter_transx_flows (self, flow_to_keep: bool) -> ["CashFlow"]:
+    def _filter_transx_flows (self, flow_to_keep: bool) -> ["CashFlow"]:
         '''Removes CashFlow objects that are opposite of what
         the CashFlows object should be. Saves those removed to a list,
         which is returned
@@ -91,14 +85,14 @@ class CashFlows:
         for year in self.cfs:
             for month in self.cfs[year]:
                 for cf in self.cfs[year][month]:
-                    if cf.pos_cash_flow != flow_to_keep:
+                    if cf.is_sav != flow_to_keep:
                         self.cfs[year][month].remove(cf)
                         flows_filtered_out = _add_transx_to_dict(
                                         flows_filtered_out, cf)
         return flows_filtered_out
     
     
-    def resort_dicts_by_date (self):
+    def _resort_dicts_by_date (self):
         transxs_to_resort = {}
         year_to_clean = 0
         month_to_clean = 0
@@ -125,9 +119,9 @@ class CashFlows:
         return transxs_to_resort
     
     
-    def merge_dicts (self, dict_to_merge: dict) -> None:
+    def _merge_dicts (self, dict_to_merge: dict) -> None:
         '''Merges the dictionary in the argument with the CashFlows dict
-        ''' 
+        '''
         for year in dict_to_merge:
             if year not in self.cfs:
                 self.cfs[year] = {}
@@ -150,19 +144,29 @@ class CashFlows:
         if year != 0:
             if self.cfs[year] == {}:
                 self.cfs.pop(year)
-        
-                
-# Called by filter_transx_flows to return a dictionary needed to contain
-# past and new transactions that do not have the appropriate cash flow
-def _add_transx_to_dict (init_dict: dict, transx: "CashFlow") -> dict:
-    '''Returns a dictionary that contains the new transaction
+    
+
+# Called by finance_edit and finance_export to update transaction's
+# dictionaries. This function prevents the shell UI from displaying
+# transactions that are savings in expenses and vice versa
+
+def update_cfs (
+    inflows: CashFlows, outflows: CashFlows) -> None:
+    '''Removes any empty data structures and their keys in the 
+    CashFlows.cfs and reorganizes transactions whose date or flow
+    have changed 
     '''
-    if transx.year not in init_dict:
-        init_dict[transx.year] = {}
-    if transx.month not in init_dict[transx.year]:
-        init_dict[transx.year][transx.month] = []
-    init_dict[transx.year][transx.month].append(transx)
-    return init_dict
+    add_to_ncfs = inflows._filter_transx_flows(True)
+    add_to_pcfs = outflows._filter_transx_flows(False)
+    
+    inflows._merge_dicts(add_to_pcfs)
+    outflows._merge_dicts(add_to_ncfs)
+    
+    add_to_pcfs = inflows._resort_dicts_by_date()
+    add_to_ncfs = outflows._resort_dicts_by_date()
+    
+    inflows._merge_dicts(add_to_pcfs)
+    outflows._merge_dicts(add_to_ncfs)
 
 
 class CashFlow:
@@ -178,7 +182,7 @@ class CashFlow:
         
         self.desc = None
 
-        self.pos_cash_flow = None
+        self.is_sav = None
         self.currency = basic_view.CURRENCY
         self.price = 0
 
@@ -289,9 +293,9 @@ class CashFlow:
         '''Updates cash flow - positive is True or 1, negative is False or 0
         '''
         if flow == basic_view.KILL_PHRASE:
-            self.pos_cash_flow = None
+            self.is_sav = None
         else:
-            self.pos_cash_flow = flow 
+            self.is_sav = flow 
     
     
     def update_curr(self, curr: str):
@@ -311,3 +315,15 @@ class CashFlow:
                 self.price = price
         except:
             raise ValueError()
+        
+# Called by filter_transx_flows to return a dictionary needed to contain
+# past and new transactions that do not have the appropriate cash flow
+def _add_transx_to_dict (init_dict: dict, transx: CashFlow) -> dict:
+    '''Returns a dictionary that contains the new transaction
+    '''
+    if transx.year not in init_dict:
+        init_dict[transx.year] = {}
+    if transx.month not in init_dict[transx.year]:
+        init_dict[transx.year][transx.month] = []
+    init_dict[transx.year][transx.month].append(transx)
+    return init_dict
