@@ -1,5 +1,5 @@
 # finance_budget_edit.py 
-# by mankaine
+# by mankaine. 
 # August 7, 2016
  
 # Module that is specific to displaying user's budget information and 
@@ -401,5 +401,3 @@ def _create_dict_budget_str (accts: [account.Account]) -> dict:
                 if month not in empty_budget_dicts[year]:
                     empty_budget_dicts[year][month] = ''
     return empty_budget_dicts
-                    
-    
