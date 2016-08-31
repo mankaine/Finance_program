@@ -16,40 +16,84 @@ from pathlib import Path
 # may not be calculated before files are exported, so handle+export_choice calls 
 # these in order to maintain the values.
 def handle_export_choice (
-        pcf: cashflow.CashFlows, ncf: cashflow.CashFlows) -> str and '.txt':
+    inflows: cashflow.CashFlows, outflows: cashflow.CashFlows) -> None:
     '''Exports transactions within a year and month to a .txt file
-    '''     
-    year_to_export = basic_view.view_years(
-        pcf.cfs, ncf.cfs, "Years to export:")
-    month_to_export = basic_view.view_months(
-        year_to_export, pcf.cfs, ncf.cfs, "Months to export:")
-     
-    print("\nExporting {} {}".format(
-        basic_view.MONTHS[month_to_export], year_to_export))
+    '''
+    year, month = choose_timeframe(inflows, outflows)   
+    if month == 0:
+        basic_view.print_loading_newline("RETURNING TO MAIN MENU")
+        return
+      
+    print("\nExporting {} {}".format(basic_view.MONTHS[month], year))
     
     setting_up_export = True
     while setting_up_export:
         file_location = file_to_export()
-                
-        pcf.update_cfs_total()
-        ncf.update_cfs_total()
-
-        finance_view.view_transxs(
-            year_to_export, month_to_export, pcf.cfs, ncf.cfs)
-        print("Net total: {:.2f} - {:.2f} = {:.2f}\n".format(
-            pcf.total, ncf.total, pcf.total - ncf.total))
-        
-        export_to_file(pcf.cfs, ncf.cfs, file_location, 
-            month_to_export, year_to_export, pcf.total, ncf.total)
-        
+        prepare_export_view(inflows, outflows)
+        view_export(inflows, outflows, year, month)
+        export_to_file(inflows, outflows, file_location, month, year)
         setting_up_export = basic_view.binary_choice(
             "Continue exporting? ", False, '')
     
     basic_view.print_loading_newline("RETURNING TO MAIN MENU")
 
+# Called in handle_export_choice. Returns the transactions within the integers
+# that are returned (year and month, respectively)
+def choose_timeframe (inflows: cashflow.CashFlows,
+                      outflows: cashflow.CashFlows) -> (int, int):
+    year = basic_view.view_years(
+        inflows.cfs, outflows.cfs, "Years to export:")
+    month = basic_view.view_months(
+        year, inflows.cfs, outflows.cfs, "Months to export:")
+    return year, month
+
+
+# Prepares export
+def prepare_export_view (inflows: cashflow.CashFlows, 
+                        outflows: cashflow.CashFlows) -> None:
+    '''Updates CashFlows object total
+    '''
+    inflows.update_cfs_total()
+    outflows.update_cfs_total()
+    
+# Displays to user everything that will be exported
+def view_export (
+    inflows: cashflow.CashFlows, outflows: cashflow.CashFlows, year: int,
+    month: int) -> str:
+    '''Prints transaction and subtotals that will be exported
+    '''
+    print(titles_to_export("{} {} Transactions".format(
+    basic_view.MONTHS[month],year)))
+    
+    print(attribute_to_export("Savings"))
+    print_transx_to_export(inflows.cfs, year, month)
+    print(net_amt_to_export(inflows.total, "Revenues", '----------')) 
+        
+    print(attribute_to_export("Spendings"))
+    print_transx_to_export(outflows.cfs, year, month)
+    print(net_amt_to_export(outflows.total, "Expenses", '----------'))
+    
+    print(net_amt_to_export(
+    inflows.total - outflows.total, "Income", "=========="))
+
+
+def print_transx_to_export(cfs: "cashflow.CashFlow.cfs", year: int, 
+                           month: int) -> str:
+    '''Prints strings containing transaction information
+    '''
+    if year in cfs:
+        if month in cfs[year]:
+            for transx in cfs[year][month]:
+                if cfs[year][month][0] == transx:
+                    print(_format_first_transx(transx))
+                else:
+                    print(_format_regular_transx(transx))
+    else:
+        print("\n\n{:^80}\n\n".format("No entries"))
+
 
 # SELECTING MONTH/YEAR TO EXPORT ##############################################
-# Handled by the basic_view
+# Handled by basic_view.py
 
 # SELECTING FILE TO EXPORT TO #################################################
 # Like many other functions, file_to_export will loop through many queries 
@@ -59,7 +103,7 @@ def handle_export_choice (
 def file_to_export () -> str:
     '''Prompts user for a file name until a valid one is provided
     '''
-    file_searching = True 
+    file_searching = True
     while file_searching:
         file_name = input("\nSelect file to export: ").strip()
         print("Determining if file is available...".format(file_name))
@@ -101,9 +145,9 @@ def file_to_export () -> str:
 # export_transx follows the same protocol as viewing a list of transactions
 # in finance_view and finance_edit; the first transaction contains the
 # currency symbol and all else don't. 
-def export_to_file (pcf: dict, ncf: dict, 
-                    file_name: str, month_to_export: int, year_to_export: int, 
-                    net_rev: float, net_xps: float) -> '.txt file':
+def export_to_file (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows, 
+                    file_name: str, month_to_export: int, year_to_export: int
+                    ) -> '.txt file':
     '''Exports transactions in the lists to a specified .txt file
     '''
     if basic_view.binary_choice("Export? ", False, ''): 
@@ -117,13 +161,10 @@ def export_to_file (pcf: dict, ncf: dict,
                 basic_view.print_loading("Exporting Information")
                                 
                 write_transxs(
-                    pcf, ncf, export_file, month_to_export, year_to_export, 
-                    net_rev, net_xps)
+                inflows, outflows, export_file, month_to_export, year_to_export)
             except Exception as e:
-                export_file.close()
-                basic_view.print_loading("An Error has occured")
-                print(e)
-                print()
+                basic_view.print_loading("An Error has occurred")
+                print(e, "\n")
             else:
                 basic_view.print_loading("File successfully exported")
             finally:
@@ -132,35 +173,32 @@ def export_to_file (pcf: dict, ncf: dict,
                 print()
 
 
-def write_transxs (pcf: dict, ncf: dict, export_file: 'file object', 
-    month_to_export: int, year_to_export: int, net_rev: float, 
-    net_xps: float) -> None:
+def write_transxs (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows,
+    export_file: 'file object', month_to_export: int, year_to_export: int) -> None:
     '''Writes data to a file
     '''
-    export_file.write(
-        titles_to_export(
-        "{} {} Transactions".format(
-        basic_view.MONTHS[month_to_export],year_to_export)))
+    export_file.write(titles_to_export("{} {} Transactions".format(
+    basic_view.MONTHS[month_to_export],year_to_export)))
     
-    export_file.write(attribute_to_export("Revenues"))
-    export_transx(pcf, year_to_export, month_to_export, export_file)
-    export_net_amount(net_rev, "Revenues", export_file, '----------') 
+    export_file.write(attribute_to_export("Savings"))
+    export_transxs(inflows.cfs, year_to_export, month_to_export, export_file)
+    export_file.write(net_amt_to_export(inflows.total, "Revenues", '----------')) 
     
     export_file.write('\n')
     
-    export_file.write(attribute_to_export("Expenses"))
-    export_transx(ncf, year_to_export, month_to_export, export_file)
-    export_net_amount(net_xps, "Expenses", export_file, '----------')
+    export_file.write(attribute_to_export("Spendings"))
+    export_transxs(outflows.cfs, year_to_export, month_to_export, export_file)
+    export_file.write(net_amt_to_export(outflows.total, "Expenses", '----------'))
     
-    export_net_amount(net_rev - net_xps, "Income", export_file, "==========")
+    export_file.write(net_amt_to_export(
+    inflows.total - outflows.total, "Income", "=========="))
 
 
-def export_net_amount(amt: float, 
-        name: str, file_name: str, end_line: str) -> None:
+def net_amt_to_export (amt: float, name: str, end_line: str) -> None:
     '''Writes information representing total name and its price to a file
     '''
-    file_name.write('\nNet {} {} {:3}{:7.2f}\n{:>76}'.format(name, 
-        '.' * ( 66 - len(name) - 7), basic_view.CURRENCY, amt, end_line))    
+    return '\nNet {} {} {:3}{:7.2f}\n{:>76}'.format(name, 
+        '.' * ( 66 - len(name) - 7), basic_view.CURRENCY, amt, end_line)    
 
 
 def titles_to_export(message: str) -> str:
@@ -176,19 +214,19 @@ def attribute_to_export(message: str) -> str:
         "Day", "Account", "Description", "Price", "Flow", basic_view.LINE)
 
 
-def export_transx (dict_of_cfs: dict, year: int, month: int, 
-                  file_object: 'file object') -> None:
+def export_transxs (dict_of_cfs: dict, year: int, month: int, 
+                    filename: 'file object') -> None:
     '''Writes a transaction to a file object
     '''
     if year in dict_of_cfs:
         if month in dict_of_cfs[year]:
             for transx in dict_of_cfs[year][month]:
                 if dict_of_cfs[year][month][0] == transx:
-                    file_object.write(_format_first_transx(transx))
+                    filename.write(_format_first_transx(transx))
                 else:
-                    file_object.write(_format_regular_transx(transx))
+                    filename.write(_format_regular_transx(transx))
     else:
-        file_object.write("\n\n{:^80}\n\n".format("No entries"))
+        filename.write("\n\n{:^80}\n\n".format("No entries"))
 
 
 def _format_first_transx (transx: cashflow.CashFlow) -> str:
@@ -197,7 +235,7 @@ def _format_first_transx (transx: cashflow.CashFlow) -> str:
     return "\n{:2}        {:30}{:25}{:3}{:7.2f} {}".format(
         transx.day, transx.acct_name, transx.desc, 
         transx.currency, transx.price, 
-        basic_view.CF_AS_STR[transx.pos_cash_flow])
+        basic_view.CF_AS_STR[transx.is_sav])
 
 
 def _format_regular_transx (transx: cashflow.CashFlow) -> str:
@@ -206,4 +244,4 @@ def _format_regular_transx (transx: cashflow.CashFlow) -> str:
     '''
     return "\n{:2}        {:30}{:25}{:10.2f} {}".format(
         transx.day, transx.acct_name, transx.desc, 
-        transx.price, basic_view.CF_AS_STR[transx.pos_cash_flow])
+        transx.price, basic_view.CF_AS_STR[transx.is_sav])
