@@ -23,7 +23,7 @@ import io
 from pathlib import Path
 
 MONTH_NAMES_TO_NUMBS = {
-        "January": 1, 
+        "January": 1,
         "February": 2,
         "March": 3,
         "April": 4,
