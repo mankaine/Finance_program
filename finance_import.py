@@ -12,8 +12,6 @@
 # The user will enter information as to whether to edit, and will be shown
 # the transactions to confirm. The user can then import another file,
 # repeating the procedure, or return to the main menu. 
-
-
 import cashflow
 import basic_view
 import finance_view
@@ -120,8 +118,8 @@ def edit_imported_transxs(
     temp_inflows.cfs, temp_outflows.cfs)
     finance_edit.view_transxs(
     _year_choice, _month_choice, temp_inflows.cfs, temp_outflows.cfs)
-    editing_transx = True
     
+    editing_transx = True
     while editing_transx:
         _inflow_len, _num_choice = finance_edit.select_transx_index(
             temp_inflows.cfs, temp_outflows.cfs, _year_choice, _month_choice)
@@ -173,7 +171,7 @@ def file_to_import() -> str:
     while file_searching:
         file_name = input("\nSelect file to import: ").strip()
         if file_name == basic_view.KILL_PHRASE:
-            return file_name
+            return basic_view.KILL_PHRASE
         print("Searching for file...".format(file_name))
         file_path = Path(file_name)
         
@@ -225,18 +223,10 @@ def _import_transxs(file_name: str) -> (int, str, cashflow.CashFlows,
             try:
                 title = imported_lines[1].split()
                 month_name, year = title[0], title[1]
-     
+
                 for line in imported_lines: 
-                    if "Transactions" in line or "Net Income" in line \
-                    or "Net Expenses" in line or "Net Revenues" in line \
-                    or "----------" in line or "==========" in line \
-                    or "Revenues" in line or "Expenses" in line \
-                    or "Day" in line or "Account" in line or "Flow" in line \
-                    or "Description" in line or "Price" in line \
-                    or "No entries" in line \
-                    or basic_view.LINE == line or '\n' == line:
+                    if _contains_reject_condition(line):
                         continue
-                 
                     else:
                         new_cf = _to_CF_from(line, month_name, year)
                         if line[76] == "+":
@@ -244,8 +234,7 @@ def _import_transxs(file_name: str) -> (int, str, cashflow.CashFlows,
                                             inflow_list, new_cf, temp_inflows)
                         elif line[76] == "-":
                             temp_outflows = handle_new_cf(
-                                        outflow_list, new_cf, temp_outflows)
-                            
+                                        outflow_list, new_cf, temp_outflows)                            
                 return year, month_name, temp_inflows, temp_outflows
             except Exception as e:
                 print(
@@ -257,6 +246,30 @@ def _import_transxs(file_name: str) -> (int, str, cashflow.CashFlows,
     finally:
         basic_view.print_loading_newline("File Closed")
     
+
+# Return value used to determine how to process line
+def _contains_reject_condition(line: str) -> bool:
+    '''Returns True if the line contains a condition that marks it as not 
+    a transaction. False otherwise.
+    '''
+    return "Transactions" in line \
+            or "Net Income" in line \
+            or "Net Expenses" in line \
+            or "Net Revenues" in line \
+            or "----------" in line \
+            or "==========" in line \
+            or "Savings" in line \
+            or "Spendings" in line \
+            or "Day" in line \
+            or "Account" in line \
+            or "Flow" in line \
+            or "Description" in line \
+            or "Price" in line \
+            or "No entries" in line \
+            or basic_view.LINE == line \
+            or '\n' == line \
+            or line.strip() == ""
+
 
 # Only the first item in the Revenues and Expenses list contain a 
 # currency sign, meaning that before being integrated into a CashFlows object,
