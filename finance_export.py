@@ -62,34 +62,69 @@ def view_export (
     month: int) -> str:
     '''Prints transaction and subtotals that will be exported
     '''
-    print(titles_to_export("{} {} Transactions".format(
-    basic_view.MONTHS[month],year)))
+    _print_titles_to_export("{} {} Transactions".format(
+    basic_view.MONTHS[month],year))
     
-    print(attribute_to_export("Savings"))
-    print_transx_to_export(inflows.cfs, year, month)
-    print(net_amt_to_export(inflows.total, "Revenues", '----------')) 
+    _print_attribute_to_export("Savings")
+    _print_transxs_to_export(inflows.cfs, year, month)
+    _print_net_amt_to_export(inflows.total, "Revenues", '----------')
         
-    print(attribute_to_export("Spendings"))
-    print_transx_to_export(outflows.cfs, year, month)
-    print(net_amt_to_export(outflows.total, "Expenses", '----------'))
+    _print_attribute_to_export("Spendings")
+    _print_transxs_to_export(outflows.cfs, year, month)
+    _print_net_amt_to_export(outflows.total, "Expenses", '----------')
     
-    print(net_amt_to_export(
-    inflows.total - outflows.total, "Income", "=========="))
+    _print_net_amt_to_export(
+    inflows.total - outflows.total, "Income", "==========")
 
 
-def print_transx_to_export(cfs: "cashflow.CashFlow.cfs", year: int, 
-                           month: int) -> str:
-    '''Prints strings containing transaction information
+def _print_titles_to_export(message: str) -> str:
+    '''Returns the string necessary to export titles
     '''
-    if year in cfs:
-        if month in cfs[year]:
-            for transx in cfs[year][month]:
-                if cfs[year][month][0] == transx:
-                    print(_format_first_transx(transx))
+    print("{:^80}\n{}".format(message, basic_view.LINE))
+
+
+def _print_attribute_to_export(message: str) -> str:
+    '''Returns the string necessary to export attribute names
+    '''
+    print(titles_to_export(message) + "\n{:10}{:30}{:25}{:10} {}\n{}".format(
+        "Day", "Account", "Description", "Price", "Flow", basic_view.LINE))
+
+
+def _print_net_amt_to_export (amt: float, name: str, end_line: str) -> str:
+    '''Writes information representing total name and its price to a file
+    '''
+    print('Net {} {} {:3}{:7.2f}\n{:>76}'.format(name, 
+        '.' * ( 66 - len(name) - 7), basic_view.CURRENCY, amt, end_line))    
+
+
+def _print_transxs_to_export (cf_dict: dict, year: int, month: int) -> str:
+    '''Displays all transactions to be exported
+    '''
+    if year in cf_dict:
+        if month in cf_dict[year]:
+            for transx in cf_dict[year][month]:
+                if cf_dict[year][month][0]==transx:
+                    _print_first_transx_to_export(transx)
                 else:
-                    print(_format_regular_transx(transx))
+                    _print_transx_to_export(transx)
     else:
         print("\n\n{:^80}\n\n".format("No entries"))
+
+
+def _print_first_transx_to_export (transx: cashflow.CashFlow) -> str:
+    print("{:2}        {:30}{:25}{:3}{:7.2f} {}".format(
+        transx.day, transx.acct_name, transx.desc, 
+        transx.currency, transx.price, 
+        basic_view.CF_AS_STR[transx.is_sav]))
+
+
+def _print_transx_to_export (transx: cashflow.CashFlow) -> str:
+    '''Returns the string representing a transactions that is 
+    not the first transaction in a list
+    '''
+    print("{:2}        {:30}{:25}{:10.2f} {}".format(
+        transx.day, transx.acct_name, transx.desc, 
+        transx.price, basic_view.CF_AS_STR[transx.is_sav]))
 
 
 # SELECTING MONTH/YEAR TO EXPORT ##############################################
@@ -214,14 +249,14 @@ def attribute_to_export(message: str) -> str:
         "Day", "Account", "Description", "Price", "Flow", basic_view.LINE)
 
 
-def export_transxs (dict_of_cfs: dict, year: int, month: int, 
+def export_transxs (dict_cfs: dict, year: int, month: int, 
                     filename: 'file object') -> None:
     '''Writes a transaction to a file object
     '''
-    if year in dict_of_cfs:
-        if month in dict_of_cfs[year]:
-            for transx in dict_of_cfs[year][month]:
-                if dict_of_cfs[year][month][0] == transx:
+    if year in dict_cfs:
+        if month in dict_cfs[year]:
+            for transx in dict_cfs[year][month]:
+                if dict_cfs[year][month][0] == transx:
                     filename.write(_format_first_transx(transx))
                 else:
                     filename.write(_format_regular_transx(transx))
