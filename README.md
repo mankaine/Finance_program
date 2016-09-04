@@ -21,6 +21,10 @@ Set budgets.<br />
 Written in Python. Most ideal to run in a Python interpreter/Terminal<br />
 
 ### REPOSITORY CHANGELOG
+#### 9/3/2016
+Fixed bugs that prevented export and imports from happening.<br />
+Fixed bugs that prevented viewing information to be exported.
+
 #### 8/30/2016
 Updated to ver. 1.0.2.<br />
 Fixed a bug that chose the wrong transaction while editing.<br />
