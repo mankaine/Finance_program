@@ -9,6 +9,7 @@ import basic_view
 import finance_edit
 
 
+
 # ENTERING TRANSACTION ########################################################
 # handle_choice_one is the first function that enter_transaction implements. It 
 # contains all the monthly and individual transaction entry functions, and 
@@ -215,7 +216,8 @@ def _entries_in_month_loop (inflows: cashflow.CashFlow,
 
     entering_transx = True
     basic_view.print_loading(
-        "Entering Transactions for the Year {}, Month {}".format(year, month))
+        "Entering Transactions for {} {}".format(
+            basic_view.MONTHS[month], year))
     
     while entering_transx:
         basic_view.print_loading("Entering New Transaction")
@@ -229,8 +231,8 @@ def _entries_in_month_loop (inflows: cashflow.CashFlow,
         _view_transx(transx, inflows, outflows)
        
         entering_transx = basic_view.binary_choice(
-            ("Enter new transaction for month {}, year {}? ".format(
-                                            month, year)), False, '\n')
+            ("Enter new transaction for {} {}? ".format(
+                                            basic_view.MONTHS[month], year)), False, '\n')
         if entering_transx == False:
             basic_view.print_loading_newline("RETURNING TO MAIN MENU")
 
