@@ -1,4 +1,4 @@
-# cashflow module. 
+# cashflow module.py
 # by mankaine
 # July 22, 2016
 
@@ -57,8 +57,8 @@ class CashFlows:
                     self.total += cf.price
                     
 
-    def calc_acct_total (self, acct: str):
-        '''Calculates the total of an account
+    def calc_acct_total (self, acct: str) -> float:
+        '''Calculates the total amount of transactions in a CashFlows object
         '''
         acct_total = 0
         for year in self.cfs:
@@ -71,12 +71,14 @@ class CashFlows:
         return acct_total
                         
                         
-    def return_year_month_total (self, year: int, month: int):
+    def return_total (self, year: int, month: int):
         '''Returns the sum of transactions occuring in year/month pair
         '''
         total_in_timeframe = 0 
-        for cf in self.cfs[year][month]:
-            total_in_timeframe += cf.price
+        if year in self.cfs:
+            if month in self.cfs[year]:
+                for cf in self.cfs[year][month]:
+                    total_in_timeframe += cf.price
         return total_in_timeframe
     
     
