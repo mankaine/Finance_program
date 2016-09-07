@@ -4,7 +4,6 @@
 
 # Exports transactions entered to a .txt file specified by user.
 
-import finance_view
 import basic_view
 
 import cashflow
@@ -62,19 +61,21 @@ def view_export (
     month: int) -> str:
     '''Prints transaction and subtotals that will be exported
     '''
+    net_in = inflows.return_total(year, month)
+    net_out = outflows.return_total(year, month)
+
     _print_titles_to_export("{} {} Transactions".format(
     basic_view.MONTHS[month],year))
     
     _print_attribute_to_export("Savings")
     _print_transxs_to_export(inflows.cfs, year, month)
-    _print_net_amt_to_export(inflows.total, "Revenues", '----------')
+    _print_net_amt_to_export(net_in, "Revenues", '----------')
         
     _print_attribute_to_export("Spendings")
     _print_transxs_to_export(outflows.cfs, year, month)
-    _print_net_amt_to_export(outflows.total, "Expenses", '----------')
+    _print_net_amt_to_export(net_out, "Expenses", '----------')
     
-    _print_net_amt_to_export(
-    inflows.total - outflows.total, "Income", "==========")
+    _print_net_amt_to_export(net_in - net_out, "Income", "==========")
 
 
 def _print_titles_to_export(message: str) -> str:
@@ -212,21 +213,24 @@ def write_transxs (inflows: cashflow.CashFlows, outflows: cashflow.CashFlows,
     export_file: 'file object', month_to_export: int, year_to_export: int) -> None:
     '''Writes data to a file
     '''
+    net_in = inflows.return_total(year_to_export, month_to_export)
+    net_out = outflows.return_total(year_to_export, month_to_export)
+    
     export_file.write(titles_to_export("{} {} Transactions".format(
     basic_view.MONTHS[month_to_export],year_to_export)))
     
     export_file.write(attribute_to_export("Savings"))
     export_transxs(inflows.cfs, year_to_export, month_to_export, export_file)
-    export_file.write(net_amt_to_export(inflows.total, "Revenues", '----------')) 
+    export_file.write(net_amt_to_export(net_in, "Revenues", '----------')) 
     
     export_file.write('\n')
     
     export_file.write(attribute_to_export("Spendings"))
     export_transxs(outflows.cfs, year_to_export, month_to_export, export_file)
-    export_file.write(net_amt_to_export(outflows.total, "Expenses", '----------'))
+    export_file.write(net_amt_to_export(net_out, "Expenses", '----------'))
     
     export_file.write(net_amt_to_export(
-    inflows.total - outflows.total, "Income", "=========="))
+    net_in - net_out, "Income", "=========="))
 
 
 def net_amt_to_export (amt: float, name: str, end_line: str) -> None:
@@ -260,6 +264,8 @@ def export_transxs (dict_cfs: dict, year: int, month: int,
                     filename.write(_format_first_transx(transx))
                 else:
                     filename.write(_format_regular_transx(transx))
+        else:
+            filename.write("\n\n{:^80}\n\n".format("No entries"))
     else:
         filename.write("\n\n{:^80}\n\n".format("No entries"))
 
