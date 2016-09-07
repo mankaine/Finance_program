@@ -83,7 +83,8 @@ def _display_cfs(cfs_dict: cashflow.CashFlows, year: int, month: int) -> str:
     sorted_transxs = _sort_transxs(all_transxs)
 
     basic_view.print_loading_newline(
-        "Displaying Transactions for Month {}, Year {}".format(month, year))
+        "Displaying Transactions for {} {}".format(
+        basic_view.MONTHS[month], year))
     print(("\n{:5} {:20} {:20} {:10} {:4}").format(
         "Day", "Account", "Description", "Price", "Flow"))
     print(basic_view.LINE)
@@ -135,7 +136,8 @@ def _display_cfs_two_dicts(
         return
     
     basic_view.print_loading_newline(
-        "Displaying Transactions for Month {}, Year {}".format(month, year))
+        "Displaying Transactions for {} {}".format(
+        basic_view.MONTHS[month], year))
     print(("\n{:5} {:20} {:20} {:10} {:4}").format(
         "Day", "Account", "Description", "Price", "Flow"))
     print(basic_view.LINE)
