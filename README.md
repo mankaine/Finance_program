@@ -21,6 +21,10 @@ Set budgets.<br />
 Written in Python. Most ideal to run in a Python interpreter/Terminal<br />
 
 ### REPOSITORY CHANGELOG
+#### 9/12/2016
+Introducing ver. 1.1!<br />
+Program now imports the previous session when initialized.
+
 #### 9/3/2016
 Fixed bugs that prevented export and imports from happening.<br />
 Fixed bugs that prevented viewing information to be exported.
