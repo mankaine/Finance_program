@@ -1,0 +1,132 @@
+# install_data.py 
+# by mankaine
+# September 12, 2016
+
+# Executed during the initialization of the main_menu module. This module will 
+# pull from all the data created from previous transactions, and populate the
+# Finance Program with Account and CashFlow data. 
+
+from cashflow import CashFlow, CashFlows
+from pathlib import Path
+from basic_view import print_loading
+from ast import literal_eval
+
+class TransDocDNEError(Exception):
+    pass
+
+FILE_NAME = ''
+
+# Called in main_menu.py during initialization. Calls _populate_cfs
+# to update them, as they are empty when the program is executed.
+def main(inflows: CashFlows, outflows: CashFlows) -> None:
+    '''Imports transactions
+    '''
+    print_loading("Initializing")
+    try:
+        _populate_cfs(inflows, outflows, FILE_NAME)
+    except TransDocDNEError:
+        print("Initialization document missing.\n",
+              "Transaction history will begin as",
+              "empty upon completed initialization")
+    print_loading("Initialization Complete")
+
+
+# Calls _execute_import, containing a list 
+def _populate_cfs (
+    inflows: CashFlows, outflows: CashFlows, file_name: str) -> None:
+    '''Populates CashFlow objects with transactions, but raises 
+    Exceptions upon error
+    '''
+    file_path = Path(file_name)
+    if (file_path.exists() and not file_path.is_dir() \
+        and file_path.suffix == '.txt'):
+        try: 
+            in_t, in_n, out_t, out_n = _execute_import(file_path)
+            _update_cfs(inflows, in_t, in_n)
+            _update_cfs(outflows, out_t, out_n)
+        except Exception as e:
+            print("An error occured during initialization\n" + str(e),
+                  "\nTransaction history will begin as",
+                  "empty upon completed initialization")
+    else:
+        raise TransDocDNEError()
+    
+
+# Passes value to be used in _populate_import
+def _execute_import (file_path: Path) -> [dict, float, dict, float]:
+    '''Imports data and converts it to appropriate data types
+    '''
+    # Import
+    with file_path.open() as opened_file: 
+        cf_info = opened_file.readlines()
+        result = ''
+        in_t_str, in_net_str, out_t_str, out_net_str = _sort_import_doc(
+            result.join(cf_info))
+        opened_file.close()
+        
+        # Creating elements
+        in_transxs = literal_eval(in_t_str)
+        in_net = literal_eval(in_net_str)
+        out_transxs = literal_eval(out_t_str)
+        out_net = literal_eval(out_net_str)
+        return in_transxs, in_net, out_transxs, out_net
+                
+
+# The document in question should always contain specific markers. 
+# These markers tell the program which CashFlows object and what 
+# kind of data is being read. Returns a list of strings that are 
+# passed to _execute_import so that its elements may be
+# converted into dicts and floats.
+def _sort_import_doc (cf_info: str) -> [str]:
+    '''Splits imported text according to CashFlows and its attributes
+    '''
+    
+    head, inf_data, outf_data = cf_info.split("CFSOx")
+    in_t, in_net = _remove_empty_elem(inf_data.split("SPLTHR"))
+    out_t, out_net = _remove_empty_elem(outf_data.split("SPLTHR"))
+    return in_t, in_net, out_t, out_net
+
+
+# Called by _sort_import_doc
+def _remove_empty_elem (str_list: [str]) -> [str]:
+    '''Removes all strings which are empty
+    '''
+    result = []
+    for elem in str_list:
+        if elem != '':
+            result.append(elem)
+    return result
+
+
+# Called by _populate_cfs. Returns nothing but updates each CashFlow
+def _update_cfs(CFS: CashFlows, transxs: dict, total: float) -> None:
+    '''Updates a CashFlows' attributes with newly imported data
+    '''
+    # Initialize Total
+    CFS.update_total(total)
+
+    # Initialize Transactions
+    for year in transxs:
+        CFS.cfs[year] = {}
+        for month in transxs[year]:
+            CFS.cfs[year][month] = []
+            for cf in transxs[year][month]:
+                _update_cf(CFS, cf, year, month)
+                
+
+# Called by _update_cfs while iterating through each transaction
+def _update_cf (
+        CFS: CashFlows, cf: 'dict value', year: int, month: int) -> None:
+    '''Initializes Cash Flow
+    '''
+    new_cf = CashFlow()
+    new_cf.update_year(cf["year"])
+    new_cf.update_month(cf["month"])
+    new_cf.update_day(cf["day"])
+    new_cf.update_date()
+    new_cf.update_acct(cf['acct_name'])
+    new_cf.update_desc(cf['desc'])
+    new_cf.update_cash_flow_direction(cf["is_sav"])
+    new_cf.update_curr(cf['currency'])
+    new_cf.update_price(cf['price'])
+    CFS.cfs[year][month].append(new_cf)
