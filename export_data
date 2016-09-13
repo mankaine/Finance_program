@@ -6,12 +6,12 @@
 # with the information regarding Accounts and CashFlows.
 
 from cashflow import CashFlow, CashFlows
+from install_data import FILE_NAME
 
 # OUTERDIV and INNERDIV are bufferzones that the importer picks up 
 # when Finance Program is initialized. They separate types of data from each 
 # other, and are placed outside of CashFlows data or inside CashFlows data.
-FILE_NAME = '/Users/williamkhaine/Documents/programming/programs/' + \
-            'python_projects/Personal_Money_Tracker/notes/9.12.2016-master-doc-ex.txt'
+IMPORT_LOCATION = FILE_NAME
 OUTERDIV = 'CFSOx'
 INNERDIV = "SPLTHR"
 
