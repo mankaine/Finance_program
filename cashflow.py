@@ -1,4 +1,4 @@
-# cashflow module.py
+# cashflow module. 
 # by mankaine
 # July 22, 2016
 
@@ -25,8 +25,7 @@ class CashFlows:
         '''Initializes the CashFlows class.
         '''
         self.cfs = {}
-        self.budget = {}
-        self.total = 0
+        self.total = 0.00
     
     
     def insert_cf (self, cf: "CashFlow"):
@@ -56,7 +55,13 @@ class CashFlows:
                 for cf in self.cfs[year][month]:
                     self.total += cf.price
                     
-
+                    
+    def update_total (self, new_t: float):
+        '''Updates total with given argument
+        '''
+        self.total = new_t
+        
+        
     def calc_acct_total (self, acct: str) -> float:
         '''Calculates the total amount of transactions in a CashFlows object
         '''
