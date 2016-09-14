@@ -1,9 +1,8 @@
 # finance_budget_view_one_month.py
 # by mankaine
 # August 11, 2016
-#
-# Execute code that creates a shell user interface, which will 
-# enable user to view budget analysis
+
+# Execute code that creates a shell user interface, which will  enable user to view budget analysis
 
 import cashflow
 import basic_view
@@ -13,8 +12,7 @@ BUDGETED_SAVINGS = []
 BUDGETED_EXPENSES = []
 ACCOUNT_LINE = '-' * 58
 
-# called by finance_budget_menu
-def view_acct_by_months(
+def view_acct_by_months(                                                        # called by finance_budget_menu.
     inflows: cashflow.CashFlows, outflows: cashflow.CashFlows, 
     accts: [account.Account]) -> str:
     '''Displays to user a breakdown of accounts in a month 
@@ -230,9 +228,11 @@ def _print_expenses_accts(
     print(basic_view.LINE)
     
     for acct in accts:
-        if not acct.is_saving and acct not in BUDGETED_EXPENSES \
-        and acct.budgets[year][month].budget != None:
-            BUDGETED_EXPENSES.append(acct)
+        if year in acct.budgets:
+            if month in acct.budgets[year]:
+                if not acct.is_saving and acct not in BUDGETED_EXPENSES \
+                and acct.budgets[year][month].budget != None:
+                    BUDGETED_EXPENSES.append(acct)
     
     num_on_list = int_boost
     for acct in BUDGETED_EXPENSES: 
@@ -248,9 +248,25 @@ def _print_nonsorted_accts(
     print(basic_view.LINE)
     
     for acct in accts:
-        if (acct not in BUDGETED_EXPENSES) and (acct not in BUDGETED_SAVINGS):
-            print("     {:27}{:14}{:14.2f}".format(
-                acct.name, (" " * 14), acct.budgets[year][month].reached))
+        if year in acct.budgets:
+            if month in acct.budgets[year]:
+                if acct not in BUDGETED_EXPENSES and \
+                acct not in BUDGETED_SAVINGS:
+                    if type(acct.budgets[year][month].reached) == float: 
+                        print("     {:27}{:14}{:14.2f}".format(
+                        acct.name, (" " * 14), 
+                        acct.budgets[year][month].reached))
+                    else:
+                        print("     {:27}{:14}{:>14}".format(
+                        acct.name, (" " * 14), 
+                        "N/A"))
+            else:
+                print("     {:27}{:14}{:>14}".format(
+                        acct.name, (" " * 14), 
+                        "N/A"))
+        else:
+            print("     {:27}{:14}{:>14}".format(
+                        acct.name, (" " * 14), "N/A"))
             
 
 def _print_acct_info(
