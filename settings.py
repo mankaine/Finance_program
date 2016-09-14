@@ -1,6 +1,6 @@
 # settings.py
-# by mankaine
-# August 26, 2016
+# By mankaine
+# August 2, 2016
 
 # User interface that enables edit to settings
 import basic_view
@@ -28,7 +28,7 @@ def _setting_menu_options(choice: int):
     pass
 
 
-# Option 1
+                                                                                # Option 1
 new_curr_explained = """
 The new value to be entered must be no longer than three characters long. It 
 will represent the currency name/symbol that is used when recording future 
@@ -51,7 +51,7 @@ def _update_base_currency() -> str:
             return new_c
 
 
-# Option 2
+                                                                                # Option 2
 kill_phrase_explained = """
 The break phrase is used to exit out of any menu and the majority of options in
 the Finance Program. Enter a phrase that contains at least three numbers and
@@ -84,12 +84,12 @@ def _handle_new_kill_phrase() -> str:
                 return new_kp
 
 
-# Option 3
+                                                                                # Option 3
 user_cred = """
 Program made by William Khaine
 Summer 2016
 Independent Project
-Version 1.0.1
+Version 1
 """
 
 
@@ -102,4 +102,3 @@ def run_setting_interface():
         _setting_menu_options(choice)
         if choice in [4, basic_view.KILL_PHRASE]:
             acessing_settings = False
- 
