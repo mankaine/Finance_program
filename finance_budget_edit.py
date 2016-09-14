@@ -1,5 +1,5 @@
 # finance_budget_edit.py 
-# by William Khaine. 
+# by mankaine. 
 # August 7, 2016
  
 # Module that is specific to displaying user's budget information and 
