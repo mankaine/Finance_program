@@ -1,5 +1,5 @@
 # finance_view.py
-# by mankaine
+# by William Khaine
 # July 14, 2016
 
 # Deals specifically with viewing transactions as selected in the main menu.
@@ -31,7 +31,7 @@ def handle_view_choice (inflows: cashflow.CashFlows, outflows: cashflow.CashFlow
         else:
             print('{} not an option. Please try again'.format(menu_choice))
     basic_view.print_loading_newline("RETURNING TO MAIN MENU")
-        
+    
 
 # DISPLAYING TRANSACTIONS IN A MONTH/YEAR PAIR ################################
 # The program will run through these series of functions to choose the month, 
