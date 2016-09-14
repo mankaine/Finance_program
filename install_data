@@ -1,10 +1,9 @@
-# install_data.py 
+# init_cashflows.py 
 # by mankaine
 # September 12, 2016
 
-# Executed during the initialization of the main_menu module. This module will 
-# pull from all the data created from previous transactions, and populate the
-# Finance Program with Account and CashFlow data. 
+# Executed during the initialization of the main_menu module. This module will pull from all the data created from previous 
+# transactions, and populate the Finance Program with Account and CashFlow data. 
 
 from cashflow import CashFlow, CashFlows
 from pathlib import Path
@@ -16,14 +15,12 @@ class TransDocDNEError(Exception):
 
 FILE_NAME = ''
 
-# Called in main_menu.py during initialization. Calls _populate_cfs
-# to update them, as they are empty when the program is executed.
-def main(inflows: CashFlows, outflows: CashFlows) -> None:
-    '''Imports transactions
+def main(inflows: CashFlows, outflows: CashFlows) -> None:                      # Called in main_menu.py.
+    '''Imports transactions 
     '''
-    print_loading("Initializing")
+    print_loading("Initializing")           
     try:
-        _populate_cfs(inflows, outflows, FILE_NAME)
+        _populate_cfs(inflows, outflows, FILE_NAME)                             # CashFlows are otherwise empty 
     except TransDocDNEError:
         print("Initialization document missing.\n",
               "Transaction history will begin as",
@@ -39,7 +36,7 @@ def _populate_cfs (
     '''
     file_path = Path(file_name)
     if (file_path.exists() and not file_path.is_dir() \
-        and file_path.suffix == '.txt'):
+        and file_path.suffix == '.txt'):                                        # Import only works for .txt files
         try: 
             in_t, in_n, out_t, out_n = _execute_import(file_path)
             _update_cfs(inflows, in_t, in_n)
@@ -58,36 +55,30 @@ def _execute_import (file_path: Path) -> [dict, float, dict, float]:
     '''
     # Import
     with file_path.open() as opened_file: 
-        cf_info = opened_file.readlines()
-        result = ''
-        in_t_str, in_net_str, out_t_str, out_net_str = _sort_import_doc(
-            result.join(cf_info))
+        cf_info = opened_file.readlines()                                       # Retrieve information
         opened_file.close()
         
-        # Creating elements
-        in_transxs = literal_eval(in_t_str)
+        result = ''                                                             # Join information
+        in_t_str, in_net_str, out_t_str, out_net_str = _sort_import_doc(
+            result.join(cf_info))
+        
+        in_transxs = literal_eval(in_t_str)                                     # Creating elements
         in_net = literal_eval(in_net_str)
         out_transxs = literal_eval(out_t_str)
         out_net = literal_eval(out_net_str)
-        return in_transxs, in_net, out_transxs, out_net
+        return in_transxs, in_net, out_transxs, out_net                         # Passed to _popualte_cfs
                 
 
-# The document in question should always contain specific markers. 
-# These markers tell the program which CashFlows object and what 
-# kind of data is being read. Returns a list of strings that are 
-# passed to _execute_import so that its elements may be
-# converted into dicts and floats.
 def _sort_import_doc (cf_info: str) -> [str]:
     '''Splits imported text according to CashFlows and its attributes
     '''
-    
-    head, inf_data, outf_data = cf_info.split("CFSOx")
-    in_t, in_net = _remove_empty_elem(inf_data.split("SPLTHR"))
-    out_t, out_net = _remove_empty_elem(outf_data.split("SPLTHR"))
-    return in_t, in_net, out_t, out_net
+    imported_split = (cf_info.split("CFSOx"))                                   # Indicates new CashFlows object
+    inf_data, outf_data = imported_split[1], imported_split[2]
+    in_t, in_net = _remove_empty_elem(inf_data.split("SPLTHR"))                 # Indicates new CashFlow attribtue
+    out_t, out_net = _remove_empty_elem(outf_data.split("SPLTHR"))              # Above was for inflow, this for outflow
+    return in_t, in_net, out_t, out_net                                         # Passed to _execute_import
 
 
-# Called by _sort_import_doc
 def _remove_empty_elem (str_list: [str]) -> [str]:
     '''Removes all strings which are empty
     '''
@@ -95,28 +86,24 @@ def _remove_empty_elem (str_list: [str]) -> [str]:
     for elem in str_list:
         if elem != '':
             result.append(elem)
-    return result
+    return result                                                               
 
 
-# Called by _populate_cfs. Returns nothing but updates each CashFlow
 def _update_cfs(CFS: CashFlows, transxs: dict, total: float) -> None:
     '''Updates a CashFlows' attributes with newly imported data
     '''
-    # Initialize Total
-    CFS.update_total(total)
+    CFS.update_total(total)                                                     # Initialize Total
 
-    # Initialize Transactions
-    for year in transxs:
-        CFS.cfs[year] = {}
+    for year in transxs:                                                        # Initialize Transactions
+        CFS.cfs[year] = {}                                                      # Sets up append to CFS in _update_cf
         for month in transxs[year]:
-            CFS.cfs[year][month] = []
+            CFS.cfs[year][month] = []                                           # Sets up append to CFS in _update_cf
             for cf in transxs[year][month]:
                 _update_cf(CFS, cf, year, month)
                 
 
-# Called by _update_cfs while iterating through each transaction
 def _update_cf (
-        CFS: CashFlows, cf: 'dict value', year: int, month: int) -> None:
+    CFS: CashFlows, cf: 'dict value', year: int, month: int) -> None:
     '''Initializes Cash Flow
     '''
     new_cf = CashFlow()
