@@ -1,4 +1,4 @@
-# account.py 
+# finance_budget_menu.py
 # by mankaine 
 # August 7, 2016
 
@@ -7,41 +7,28 @@
 from collections import namedtuple
 import cashflow
 
-# The five attributes of Budget_Info contain unique information to each 
-# month and year. acct_transxs is designed to contain a list of 
-# CashFlow objects whose account name is that of the Account.name. 
-# budget is the budget of the Account for the month and reached represents
-# how much of that budget has been spent or saved. perc_remain and 
-# perc_reached represent how much has been saved/spent and remain of the budget
-# as expressed in decimal form. 
 Budget_Info = namedtuple(
-    "Budget_Info",  ["acct_transxs", "budget", "reached", "remain", 
-                     "perc_remain", "perc_reached"])
+    "Budget_Info",  ["acct_transxs",                                            # Contains transactions
+                     "budget",                                                  # Budget for timeframe
+                     "reached",                                                 # How close to budget
+                     "remain",                                                  # budget - reached
+                     "perc_remain",                                             # (budget - reached / budget) * 100%
+                     "perc_reached"])                                           # (reached / budget) * 100%
 
 
-# The Account class is called by finance_budget_edit to display, process, and 
-# handle changes in and decisions to view the budget values. It contains the
-# name of the account - which should be an account name in the list of 
-# transactions created in finance_entry or finance_edit (or an account that 
-# will be created) - and the information unique to year and month. This 
-# information is also sorted by year and month in the dictionary self.budgets
-#  - the keys of the dictionary of the first level contains year and the 
-# second level dicts contain the month number - 1 starting with January, and so on. 
 class Account:
     def __init__(self):
         '''Initializes the Account class
         '''
-        self.budgets = {}
-        self.name = None
-        self.is_saving = None
+        self.budgets = {}                                                       # contains Budget_Info for each timeframe 
+        self.name = None                                                        # Name of Account
+        self.is_saving = None                                                   # Whether Account is saving (True) or Expense (False)
         
     
-    # update_name will be handled by finance_budget_edit to update the name of the 
-    # Account.
     def update_name(self, name: str) -> None:
         '''Updates the self.name attribute
         '''
-        self.name = name
+        self.name = name    
         
     def update_savings_value (self, value: bool):
         '''Updates the value of self.is_saving to the value of the parameter
@@ -49,14 +36,6 @@ class Account:
         self.is_saving = value 
         
         
-    # create_budget_placeholders will be called to create a series of year and
-    # month keys, as well as placeholder values of the Budget_Info tuple that
-    # contain the values unique to year and month. If updated, these values 
-    # must first go through update_budget_transxs. Because the class 
-    # representing positive and negative cash flows will be passed through 
-    # this function, create_budget_placeholders will be called at least twice;
-    # this means that conditionals need to be created at every level to 
-    # prevent the values from being overwritten.
     def fill_transxs (self, transxs: [cashflow.CashFlow]):
         '''Updates self.budget to contain the values of the year and month
         keys
@@ -64,25 +43,24 @@ class Account:
         self.budgets = {}
         
         for transx in transxs:
-            if transx.year not in self.budgets:
+            if transx.year not in self.budgets:                                 # Prevents KeyError
                 self.budgets[transx.year] = {}
-            if transx.month not in self.budgets[transx.year]:
+            if transx.month not in self.budgets[transx.year]:                   # Prevents KeyError
                 self.budgets[transx.year][transx.month] = Budget_Info(
                 [transx], None, None, None, 0.00, 0.00)
-            else:
+            else:                                                               # year and month keys in self.budgets
                 self.budgets[transx.year][transx.month].acct_transxs.append(
                 transx)
     
     
     def update_budget (self, new_budget: float, month: int, year: int):
         '''Updates budget value
-        ''' 
+        '''
         self.budgets[year][month] = self.budgets[year][month]._replace(
             budget = new_budget)
     
     
-    # called in finance_budget_view_one_month
-    def recalc_acct_budget_attrib (self):
+    def recalc_acct_budget_attrib (self):                                       # Called in finance_budget_view_one_month
         '''Forces Account object to update the amount spent/earned and percent
         attributes for each budget
         '''
@@ -145,4 +123,3 @@ def remove_duplicates (accts: [Account]) -> None:
             acct_names_reviewed.append(acct.name)
         else:
             accts.remove(acct)
- 
