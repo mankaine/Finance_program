@@ -1,17 +1,16 @@
 # finance_budget_view_all_months.py 
-# by mankaine
+# By mankaine
 # August 27, 2016
-
-# Shell user interface module that allows user to one budget, of all months.
-# Also allows user to view breakdown of one month's budget.
+#
+# Shell user interface module that allows user to one budget, of all months. Also allows user to view breakdown of one 
+# month's budget.
 
 import cashflow
 import account
 import basic_view
 import finance_budget_view_one_month
 
-# called by finance_budget_menu, option 3
-def view_acct_all_months(
+def view_acct_all_months(                                                       # called by finance_budget_menu, option 3
     inflows: cashflow.CashFlows, outflows: cashflow.CashFlows, 
     accts: [account.Account]) -> None:
     '''Displays an account and its budget information
@@ -37,9 +36,9 @@ def view_acct_all_months(
     basic_view.print_loading_newline("Returning to Budget Menu")
 
 
-# Selecting Account
-# _select_account is called at the beginning of view_acct_all_months.
-def _select_account(accts: [account.Account]) -> int:
+                                                                                # SELECTING ACCOUNT
+                                                                                # _select_account is called at the
+def _select_account(accts: [account.Account]) -> int:                           # beginning of view_acct_all_months
     '''Prompts user to enter an Account to view, and continues to do
     so until a valid one is provided. Returns the selected Account
     '''
@@ -57,8 +56,7 @@ def _select_account(accts: [account.Account]) -> int:
             choice_str, len(accts)))
             
             
-# Called by _select_account to display all Accounts
-def _display_accounts_avail(accts: [account.Account]) -> str:
+def _display_accounts_avail(accts: [account.Account]) -> str:                   # Called by _select_account to display all Accounts
     '''Displays a numbered list of Accounts
     '''
     print("Available Accounts:")
@@ -67,9 +65,8 @@ def _display_accounts_avail(accts: [account.Account]) -> str:
     print()
 
 
-# Displaying budgets
-# _display_budget is called after the account is chosen.
-def _display_header(acct: account.Account) -> str:
+                                                                                # DISPLAYING BUDGETS
+def _display_header(acct: account.Account) -> str:                              # called after the account is chosen.
     '''Prints header information 
     '''
     print("{:^80}".format(acct.name + " Budgets"))
@@ -86,7 +83,7 @@ def _display_header(acct: account.Account) -> str:
 def _display_budget (acct: account.Account) -> str:
     '''Displays to the screen Account information as set in Account.budgets
     '''
-    _display_header(acct) 
+    _display_header(acct)
     finance_budget_view_one_month.force_attrib_recalc([acct])
     for year in acct.budgets:
         year_not_printed = True
@@ -98,9 +95,8 @@ def _display_budget (acct: account.Account) -> str:
                 _display_reg_of_year(acct, year, month)
                    
 
-# _display_budget calls _display_first_of_year and _display_reg_of_year to print 
-# budget information. They return nothing.
-def _display_first_of_year (acct: account.Account, year: int, month: int) -> str:
+def _display_first_of_year (                                                    # Called by _display_budget
+        acct: account.Account, year: int, month: int) -> str: 
     '''Prints a string representing the first budget of a year listed 
     '''
     budget_str, reached_str, remain_str, perc_remain_str = \
@@ -110,7 +106,8 @@ def _display_first_of_year (acct: account.Account, year: int, month: int) -> str
         remain_str, perc_remain_str))
 
     
-def _display_reg_of_year (acct: account.Account, year: int, month: int) -> str:
+def _display_reg_of_year (                                                      # Called by _display_budget
+        acct: account.Account, year: int, month: int) -> str:
     '''Prints a string representing the budget of a year listed, assuming
     that such a budget is not the first of a year
     '''
@@ -122,9 +119,6 @@ def _display_reg_of_year (acct: account.Account, year: int, month: int) -> str:
         remain_str, perc_remain_str))
 
 
-# The tuple _create_data_str returns is used by _display_first_of_year and 
-# _display_reg_of_year to display the Account's timeframes, budgets,
-# amounts saved/spent, amounts remaining, and percentage remaining. 
 def _create_data_str (acct: account.Account, year: int, month: int
     ) -> (str, str, str, str):
     '''Returns a 4-tuple representing the string versions of attributes
@@ -134,30 +128,24 @@ def _create_data_str (acct: account.Account, year: int, month: int
     
     perc_remain_str = "(" + "{:.2f}".format(budget_info.perc_remain * 100)+ "%)"
     
-    return (_create_indiv_str(budget_info.budget),
-            _create_indiv_str(budget_info.reached),
-            _create_indiv_str(budget_info.remain),
+    return (_create_indiv_str(budget_info.budget),                              # Passed to _display_first_of_year,
+            _create_indiv_str(budget_info.reached),                             # _display_reg_of_year 
+            _create_indiv_str(budget_info.remain),          
             perc_remain_str)
 
 
-# Called by _create_data_str to return the string needed to print the budget, 
-# amount reached, amount remaining. Necessary because formatting strings does not
-# work with None type objects, and account.py initializes the instance of 
-# Budget_Info - the data structure that the budget, reached, and remain values 
-# are pulled from -  to contain None type objects.  
-def _create_indiv_str (field: 'account.Account.budgets attribute') -> str:
+def _create_indiv_str (field: 'account.Account.budgets attribute') -> str:      # Called by _create_data_str
     '''Returns a string corresponding with an attribute's value
     '''
-    if field == None:
-        return "None"
+    if field == None:                                                           # Formatting strings doesn't work with NoneTypes,
+        return "None"                                                           # and Account is initialized with NoneTypes
     else:
         return "{:10.2f}".format(field)
     
 
-# Viewing Specific Account by Month
-# called by view_acct_all_months. Passes arguments to _handle_acct_choice_num
-# and view_budget_by_month to find specific budget information.
-def select_timefraome(inflows: cashflow.CashFlows, outflows: cashflow.CashFlows,
+                                                                                # VIEWING SPECIFIC ACCOUNT BY ONE MONTH
+def select_timefraome(inflows: cashflow.CashFlows,                              # Called by view_acct_all_months
+                      outflows: cashflow.CashFlows,
                       ) -> (int, int):
     '''Returns a 2-tuple representing year and month of selected Account 
     timeframe
@@ -166,11 +154,10 @@ def select_timefraome(inflows: cashflow.CashFlows, outflows: cashflow.CashFlows,
                 inflows.cfs, outflows.cfs, "\Years with Account")
     month = basic_view.view_months(year, inflows.cfs, outflows.cfs, 
                                        "Month with Account")
-    return (year, month)
+    return (year, month)                                                        # Passed to _handle_acct_choice_num,
+                                                                                # view_budget_by_month to find specific budget info    
 
     
-# Executes code relevant to viewing budget by one month. This includes selecting
-# the index needed to view the account
 def view_budget_by_month (accts: [account.Account], acct_ind: int, 
                year: int, month: int) -> None:
     '''Executes code relevant to viewing budget by one month
