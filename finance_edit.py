@@ -12,19 +12,15 @@ import basic_view
 ATTRIBUTES = ['Date', 'Account', 'Description', 'Price', 'Flow']
 
 
-# OutsideListRangeError is raised when a user enters a value representing
-# a month or year to edit that is not been yet entered as having a transaction.
-class OutsideListRangeError (Exception):
-    pass
+class OutsideListRangeError (Exception):                                        # Raised when value representing year/month entered
+    pass                                                                        # that has not been yet entered as timeframe for
+                                                                                # Transaction
 
 
-# INDIVIDUAL EDITING ##########################################################
-# When a user decides to edit a transaction immediately after creating it, 
-# handle_edit is called from the finance_entry module. While it does not return
-# anything, the function updates the CashFlow class. 
-def handle_edit (
-    transx: cashflow.CashFlow, inflows: cashflow.CashFlows,
-    outflows: cashflow.CashFlows) -> None:
+                                                                                # INDIVIDUAL EDITING
+def handle_edit (                                                               # When user wants to edit transaction immediately
+    transx: cashflow.CashFlow, inflows: cashflow.CashFlows,                     # after creating it. Returns nothing but updates 
+    outflows: cashflow.CashFlows) -> None:                                      # CashFlow in question
     '''Displays and edits one transaction
     '''
     editing = True
@@ -37,12 +33,8 @@ def handle_edit (
                                 "\nEdit transaction again? ", False, '')
 
 
-# EDITING MULTIPLE TRANSACTIONS ################################################
-# handle_edit_choice is called in the main_menu module and displays the 
-# transactions that can be edited, the updated transaction, and the updated list
-# of transactions in the initially selected month and year.
-def handle_edit_choice (inflows: cashflow.CashFlows, 
-                        outflows: cashflow.CashFlows) -> None:    
+def handle_edit_choice (inflows: cashflow.CashFlows,                            # EDITING MULTIPLE TRANSACTIONS
+                        outflows: cashflow.CashFlows) -> None:                  # called in main_menu.py    
     '''Displays revenues, expenses, and enables user to edit the attributes of
     the transactions one at a time
     '''
@@ -73,53 +65,35 @@ def handle_edit_choice (inflows: cashflow.CashFlows,
                                 "\nEdit more transactions? ", False, '')
 
 
-# Called to return year and month to view transactions to edit. Returns tuple
-# representing (year, month) by integers
-def choose_timeframe (inflows: cashflow.CashFlows,
+def choose_timeframe (inflows: cashflow.CashFlows,                                                 
                       outflows: cashflow.CashFlows) -> (int, int):
     year = basic_view.view_years(
         inflows.cfs, outflows.cfs, "Years to edit:")
     month = basic_view.view_months(
         year, inflows.cfs, outflows.cfs, "Months to edit:")
-    return year, month
-
-
-# CHOOSING THE TRANSACTION TO EDIT ############################################
-# basic_view.view_years and basic_view.view_months are called in order to 
-# allow the user to choose a month and year to focus in on. 
-
-# After a month and year have been selected, a user must see which transactions
-# to edit. This need is met by view_transxs, and _view_tansxs_formatted. The 
-# former calls the latter to display a list of transactions, which is either 
-# positive or negative cash flow.
-def view_transxs (year: int, month: int, inflows: dict, outflows: dict) -> str:
+    return year, month                                                          # Returned as 1 being year 1, and 1 as January
+                                                                                # Necessary to choose transaction to edit
+                            
+def view_transxs (year: int, month: int, inflows: dict, outflows: dict) -> str: # CHOOSING THE TRANSACTION TO EDIT
     '''Displays possible transaction to edit within a year and month
     '''
     cf = (inflows, outflows)
     
-    print("{} {} Transactions".format(basic_view.MONTHS[month], year))
+    print("{} {} Transactions".format(basic_view.MONTHS[month], year)) 
     print(basic_view.LINE)
     _view_tranxs_formatted('Savings', year, month, cf[0], 0)
     print()
     
     pcf_len = transxs_in_month(year, month, cf[0])    
-    _view_tranxs_formatted('Expenses', year, month, cf[1], pcf_len)
-    
-    # Note that for the Negative Cash Flow implementation of 
-    # _view_tranxs_formatted, the length of the PCF dict is a parameter. 
-    # This prevents two different transactions of earnings and spendings 
-    # from having the same value. 
-    
-    
-# view_transxs_formatted will display the attributes, and then then the index
-# number, date, description, account, and price of each transaction in a list.
-# For the sake of design, only the first transaction in the list has a currency 
-# symbol.
-def _view_tranxs_formatted (message: str, year: int, month: int, 
+    _view_tranxs_formatted('Expenses', year, month, cf[1], pcf_len)             # pcf_len increases the lowest number in the list 
+                                                                                # of outflows, so no inflow and outflow will have
+                                                                                # the same number 
+        
+def _view_tranxs_formatted (message: str, year: int, month: int,                # Called in view_transxs
                             cfs_dict: dict, list_boost: int) -> str:
     '''Displays possible revenues to edit within a year and month
     '''
-    print("{:^84}".format(message))
+    print("{:^84}".format(message))                                             # Column/Organizing strings
     print(basic_view.LINE + ("-" * 7))
     print(("\n{:5} {:10} {:28} {:24} {:10} {:4}").format("No.",
         "Date", "Account", "Description", "Price", "Flow"))
@@ -127,17 +101,17 @@ def _view_tranxs_formatted (message: str, year: int, month: int,
 
     if year in cfs_dict:
         if month in cfs_dict[year]:
-            cfs_dict[year][month].sort(key = lambda transx: transx.date) 
+            cfs_dict[year][month].sort(key = lambda transx: transx.date)        # Sort all transactions by date
             for transx in cfs_dict[year][month]:
-                transx_str = "{:3}. {:2}/{:2}/{:4} {:30}{:25}".format(
+                transx_str = "{:3}. {:2}/{:2}/{:4} {:30}{:25}".format(          # Create string with transaction
                         cfs_dict[year][month].index(transx) + 1 + list_boost, 
                         transx.month, transx.day, transx.year, transx.acct_name, 
                         transx.desc)
-                if cfs_dict[year][month][0] == transx:
+                if cfs_dict[year][month][0] == transx:                          # Style points: if first in list, print currency
                     transx_str += "{:3}{:7.2f} {}".format(transx.currency, 
                         transx.price,
                         basic_view.CF_AS_STR[transx.is_sav])
-                else:
+                else:                                                           # Otherwise, don't
                     transx_str += "{:10.2f} {}".format(transx.price, 
                         basic_view.CF_AS_STR[transx.is_sav])
                 print(transx_str)
@@ -147,15 +121,6 @@ def _view_tranxs_formatted (message: str, year: int, month: int,
         print("\n{:^80}\n".format("No entries"))
 
 
-# handle_edit_choice calls select_transx_index to find not only the numbering
-# of the transaction the user wishes to edit, but also the amount of positive 
-# cash flow transactions entered. So, the function returns a tuple containing 
-# these values, but only after the transactions are displayed.
-#
-# The function first determines the length of the revenues transactions, 
-# and then prompts the user to enter a value representing the number order 
-# of the transaction. select_transx passes these two numbers to select_transx,
-# which returns the actual transaction selected.
 def transxs_in_month (year: int, month: int, cfs: dict) -> int:
     '''Returns the length of the value of a dictionary's third dimension
     '''
@@ -167,7 +132,8 @@ def transxs_in_month (year: int, month: int, cfs: dict) -> int:
             cf_amount = 0
     else:
         cf_amount = 0
-    return cf_amount
+    return cf_amount                                                            # Called in select_transx_index. Value passed as 
+                                                                                # length of inflows and outflows
 
 
 def select_transx_index (inflows: dict, outflows: dict, year: int, month: int
@@ -184,12 +150,10 @@ def select_transx_index (inflows: dict, outflows: dict, year: int, month: int
         try: 
             number_choice_str = input("\nEnter number: ").strip()
             
-            # User breaks out
-            if number_choice_str == basic_view.KILL_PHRASE:
+            if number_choice_str == basic_view.KILL_PHRASE:                     # User breaks out
                 return -1, -1
             
-            # Conversion
-            chosen_num = int(number_choice_str)
+            chosen_num = int(number_choice_str)                                 # Conversion
             if 1 > chosen_num or (pcf_len + ncf_len) < chosen_num:
                 raise OutsideListRangeError()
              
@@ -199,10 +163,8 @@ def select_transx_index (inflows: dict, outflows: dict, year: int, month: int
             print("{} outside of the range 1 to {}. Try again.".format(
                 chosen_num, pcf_len + ncf_len))
         else:
-            # Break out of loop, return the number of inflows and index of 
-            # user's choice in listed transactions
-            selecting_transx = False
-            return pcf_len, chosen_num
+            selecting_transx = False                                            # Break out, return number of inflows and index
+            return pcf_len, chosen_num                                          # of user's choice in listed transactions
         
         
 def select_transx (pcfs: dict, ncfs: dict, year: int, 
@@ -225,11 +187,7 @@ def select_transx (pcfs: dict, ncfs: dict, year: int,
         return ncfs[year][month][transx_ind]
      
 
-# CHOOSING WHAT TO EDIT #######################################################
-# Now that the transaction has been chosen, the program must figure out how to 
-# edit it. It requests the user to answer this question, and passes the answer
-# to _edit_transx, where individual functions edit, update, and revise the 
-# values specified.
+                                                                                # CHOOSING WHAT TO EDIT 
 def _select_attrib (
     attribs: [str], transx: cashflow.CashFlow, inflows: cashflow.CashFlows,
     outflows: cashflow.CashFlows) -> str:
@@ -254,10 +212,10 @@ def _select_attrib (
             print("{} not an option. Select one of the following: {}.".format(
                                                     attrib_str, ATTRIBUTES)) 
         else:
-            return attrib_str.title()
+            return attrib_str.title()                                           # Passed to main function 
 
 
-def _delete_transx(
+def _delete_transx(                                                             # Called in _select_attrib
     transx: cashflow.CashFlow, inflows: cashflow.CashFlows, 
     outflows: cashflow.CashFlows) -> None:
     '''Deletes a transaction from a CashFlows object
@@ -284,10 +242,10 @@ def _edit_transx (transx: cashflow.CashFlow or cashflow.CashFlow,
         _edit_price(transx)
     elif attrib == 'Flow':
         _edit_flow(transx)        
-    return transx
+    return transx                                                               # Passed to main function
 
 
-# EDITING THE TRANSACTION #####################################################
+                                                                                # EDITING THE TRANSACTION
 def _edit_date (transx: cashflow.CashFlow) -> None:
     '''Prompts a user to enter a transaction's new date, and saves the result
     '''
@@ -345,12 +303,7 @@ def _edit_flow (transx: cashflow.CashFlow) -> None:
     print()
 
 
-# CONFIRMING EDITS ############################################################
-# Following the program showing initial transactions and the attribute to edit,
-# _view_edited_transxs displays to the screen the updated transaction, so the 
-# viewer may check if the revision was entered correctly, as well as to confirm 
-# that the user is satisfied with the revision.
-def _view_edit (transx: cashflow.CashFlow or cashflow.CashFlow) -> str:
+def _view_edit (transx: cashflow.CashFlow or cashflow.CashFlow) -> str:         # Confirmation of edit
     '''Displays to the screen an updated transaction
     '''
     print("Updated transaction:")
