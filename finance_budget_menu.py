@@ -1,8 +1,9 @@
-# finance_budget_menu.py
-# by mankaine
+# finance_budget_menu
+# By mankaine
 # August 11, 2016
 
 # Menu module of budget option, selected from main menu
+
 
 import finance_budget_edit
 import finance_budget_view_one_month
@@ -10,6 +11,9 @@ import finance_budget_view_all_months
 import account
 import basic_view
 import cashflow
+
+import init_accounts
+import save_accounts
 
 
 budget_menu = '''BUDGET MENU:
@@ -25,8 +29,10 @@ def handle_budget_choice(
     '''Handles user's decision to view and edit budgets
     '''    
     budgeting = True
+    
     accts_coll = _create_acct_list(_separate_by_name(inflows, {}))
     accts_coll.extend(_create_acct_list(_separate_by_name(outflows, {})))
+    accts_coll.extend(init_accounts.main(accts_coll))
     
     while budgeting:
         int_choice = basic_view.menu_input(budget_menu, 5)
@@ -43,13 +49,11 @@ def handle_budget_choice(
             finance_budget_view_all_months.view_acct_all_months(
                                         inflows, outflows, accts_coll)
         elif int_choice == 4:
+            save_accounts.main(accts_coll)
             budgeting = False
     basic_view.print_loading_newline("RETURING TO MAIN MENU")
 
 
-# Returns a dict object whose keys are the names of Transaction accounts and
-# the values are the Transactions with those Account names. Returned value 
-# is passed to _create_acct_list
 def _separate_by_name (cfs: cashflow.CashFlows, dict_accts: dict) -> dict:
     for year in cfs.cfs:
         for month in cfs.cfs[year]:
@@ -58,19 +62,18 @@ def _separate_by_name (cfs: cashflow.CashFlows, dict_accts: dict) -> dict:
                     dict_accts[cf.acct_name] = [cf]
                 else:
                     dict_accts[cf.acct_name].append(cf)
-    return dict_accts                
+    return dict_accts                                                           # Keys: Transaction name accounts
+                                                                                # Values: Transactions with those account names
+                                                                                # Passed to _create_acct_list         
     
 
-# Initializes Account object, provided the name and transactions of an Account.
-# Returns such a list to be called in the various functions that are called 
-# by user input in the menu (1, 2, 3).
-def _create_acct_list (acct_transxs: dict) -> [account.Account]:
+def _create_acct_list (acct_transxs: dict) -> [account.Account]:                # Called in handle_budget_choice
     '''Creates a list of Accounts, containing sorted transactions and names
     '''
-    accts = []
+    accts = []                      
     for acct_name in acct_transxs:
         acct = account.Account()
         acct.update_name(acct_name)
         acct.fill_transxs(acct_transxs[acct_name]) 
         accts.append(acct)
-    return accts
+    return accts            
