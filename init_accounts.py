@@ -14,7 +14,7 @@ from ast import literal_eval
 class TransDocDNEError(Exception):
     pass
 
-FILE_NAME = '/Users/williamkhaine/Documents/finances/transactions/test_bud_master.txt'
+FILE_NAME = ''
 
 # Module's entry point. Only public function.
 def main(accts: [Account]) -> None:
