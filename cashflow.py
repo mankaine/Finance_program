@@ -2,8 +2,7 @@
 # by mankaine
 # July 22, 2016
 
-# Contains the information and classes necessary to produce positive and
-# negative cash flow.
+# Contains the information and classes necessary to produce positive and negative cash flow.
 
 class OutsideYearRange(Exception):
     pass
@@ -112,15 +111,14 @@ class CashFlows:
             for month in self.cfs[year]:
                 for cf in self.cfs[year][month]:
                     
-                    # transaction is not in the right dictionary according to year
-                    if cf.year != year: 
-                        year_to_clean = year
+                    if cf.year != year:                                         # transaction is not in the right dictionary  
+                        year_to_clean = year                                    #     according to year
                         transxs_to_resort = _add_transx_to_dict(
                             transxs_to_resort, cf)
                         self.cfs[year][month].remove(cf)
                     
-                    # trans. is not in the right list according to month
-                    elif cf.month != month: 
+                    elif cf.month != month:                                     # trans. is not in the right list according to month
+
                         year_to_clean, month_to_clean = year, month
                         transxs_to_resort = _add_transx_to_dict(
                             transxs_to_resort, cf)
@@ -142,13 +140,10 @@ class CashFlows:
                 self.cfs[year][month].extend(dict_to_merge[year][month])
                 
                 
-    # Called in resort_dicts_by_date to remove any empty data structures. 
-    # Done to prevent faulty display when calling basic_view.view_years 
-    # and .view_months
-    def _clean_dicts(self, year: int, month: int):
-        '''Removes all empty dicts and lists from the CashFlows dictionary 
-        '''
-        if month != 0:
+    def _clean_dicts(self, year: int, month: int):                              # Removes empty data structures
+        '''Removes all empty dicts and lists from the CashFlows dictionary      
+        '''                                                                     # Called by resort_dicts_by_state
+        if month != 0:                                                          # Prevents faulty display in view_years and view_months
             if year in self.cfs:
                 if self.cfs[year][month] == []:
                     self.cfs[year].pop(month)
@@ -157,17 +152,13 @@ class CashFlows:
                 self.cfs.pop(year)
     
 
-# Called by finance_edit and finance_export to update transaction's
-# dictionaries. This function prevents the shell UI from displaying
-# transactions that are savings in expenses and vice versa
-
-def update_cfs (
-    inflows: CashFlows, outflows: CashFlows) -> None:
+def update_cfs (                                                                # Called by finance_export and finance_edit
+    inflows: CashFlows, outflows: CashFlows) -> None:                           # Updates transaction's dictionaries
     '''Removes any empty data structures and their keys in the 
     CashFlows.cfs and reorganizes transactions whose date or flow
     have changed 
     '''
-    add_to_ncfs = inflows._filter_transx_flows(True)
+    add_to_ncfs = inflows._filter_transx_flows(True)                            
     add_to_pcfs = outflows._filter_transx_flows(False)
     
     inflows._merge_dicts(add_to_pcfs)
@@ -177,7 +168,7 @@ def update_cfs (
     add_to_ncfs = outflows._resort_dicts_by_date()
     
     inflows._merge_dicts(add_to_pcfs)
-    outflows._merge_dicts(add_to_ncfs)
+    outflows._merge_dicts(add_to_ncfs)                                          # By this point, inflows are separated from outflows
 
 
 class CashFlow:
@@ -198,9 +189,7 @@ class CashFlow:
         self.price = 0
 
 
-    # The following three methods change the year, month, and day. If the input is outside
-    # of the acceptable range, the relevant error is raised.  
-    def update_year (self, year: str):
+    def update_year (self, year: str):                                              
         '''Changes the year parameter of the date. If the year is above or below the 
         acceptable date, an OutsideYearRange Error is raised.
         '''
@@ -247,20 +236,17 @@ class CashFlow:
         except:
             raise OutsideDayRange("{} is not an integer".format(day))   
         else:
-            if self.month in [4, 6, 9, 11] and (day < 1 or day > 30): 
-                # April, June, September, November
+            if self.month in [4, 6, 9, 11] and (day < 1 or day > 30):           # April, June, September, November
                 raise OutsideDayRange(
                 ("""date {} for the month of April, June, September, 
                 or November is under 1 or over 31""".format(day)))
-            elif self.month in [1, 3, 5, 7, 8, 10] and (day < 1 or day > 31): 
-                # January, March, May, July, August, October
+            elif self.month in [1, 3, 5, 7, 8, 10] and (day < 1 or day > 31):   # January, March, May, July, August, October
                 raise OutsideDayRange(
                 ("""date {} for the month of January, March, May, July, August,
                  or October is under 1 or over 31""".format(day)))
             elif self.month == 2: 
-                # February
                 if (self.year % 400 == 0 or self.year % 4 == 0) and self.year % 100 != 0 \
-                and (day < 1 or day > 29):
+                and (day < 1 or day > 29):                                       # February
                     raise OutsideDayRange(
                     ("""date {} for the month of February, 
                     leap year {} is under 1 or over 29""".format(day, self.year)))
@@ -272,17 +258,14 @@ class CashFlow:
             self.day = day
                 
     
-    # return_date processes the date and returns it as a datetime object.
     def update_date (self):
         '''Updates and Returns date using the saved year, month, and date values
         '''
         self.date = date(self.year, self.month, self.day)
     
-    
-    # The following methods are called whenever the interface prompts the user for the 
-    # appropriate change. The corresponding function in finance_entry calls the user to 
-    # enter a number from an index of accounts. 
-    def update_acct (self, acct_name: str):
+
+    # FOLLOWING CALLED WHENEVER CHANGE PROMPTED BY USER
+    def update_acct (self, acct_name: str):                                     
         '''Updates account with the account parameter
         '''
         if acct_name == basic_view.KILL_PHRASE:
@@ -327,9 +310,7 @@ class CashFlow:
         except:
             raise ValueError()
         
-# Called by filter_transx_flows to return a dictionary needed to contain
-# past and new transactions that do not have the appropriate cash flow
-def _add_transx_to_dict (init_dict: dict, transx: CashFlow) -> dict:
+def _add_transx_to_dict (init_dict: dict, transx: CashFlow) -> dict:            # Called by filter_transx_flows
     '''Returns a dictionary that contains the new transaction
     '''
     if transx.year not in init_dict:
