@@ -1,5 +1,5 @@
 # finance_budget_edit.py 
-# by mankaine. 
+# by William Khaine. 
 # August 7, 2016
  
 # Module that is specific to displaying user's budget information and 
@@ -10,9 +10,7 @@ import basic_view
 import cashflow    
 
 
-# The only public function, edit_acct_budgets is called in
-# finance_budget_menu.
-def edit_acct_budgets(
+def edit_acct_budgets(                                                          # only public function; called in finance_budget_menu
     inflows: cashflow.CashFlows, outflows: cashflow.CashFlows,
     accts_coll: [account.Account]
     ) -> [account]:
@@ -20,49 +18,37 @@ def edit_acct_budgets(
     month pair. Prompts the user to edit these values and records the changes
     in these values. Loops until the user decides to exit
     '''
-    # Display budgets to edit. These two lines enables the user to see account
-    # names and type (saving, expense, or neither) without looping.
-    acct_names_str = _create_acct_str(accts_coll)
+    acct_names_str = _create_acct_str(accts_coll)                               # Display budgets to edit
     _display_full_budgets(acct_names_str, accts_coll)
  
-    # Edit budgets
-    if basic_view.binary_choice("\nEdit a budget? ", False, ''):
+    if basic_view.binary_choice("\nEdit a budget? ", False, ''):                # Edit budgets
         accts_coll = _edit_budget_loop(accts_coll)
     
-    # Prepare for budget menu
-    basic_view.print_loading_newline("Returning to budget menu")
+    basic_view.print_loading_newline("Returning to budget menu")                # Prepare for budget menu
     return accts_coll
         
         
-# _edit_budget_loop is called after the user views account information
-# for the first time. It calls on _select_budget, _update_specified_budget,
-# _display_confirmed_edit, and binary_choice from the basic_view module. 
-# Returns the list of accounts, which will be passed up to edit_acct_budgets.
 def _edit_budget_loop (
-    accts: [account.Account]) -> [account.Account]:
+    accts: [account.Account]) -> [account.Account]:                     
     '''Prompts user the choice to edit budgets. If the user decides to do so,
     Replaces budget of a certain account and time period with the ones 
     specified by user
     '''
     editing_budgets = True
     while editing_budgets:
-        # Selection of Account name, year, and month
-        _budget_name, _budget_year, _budget_month = _select_budget(accts)
+        _budget_name, _budget_year, _budget_month = _select_budget(accts)       # Selection of Account name, year, and month
         if _budget_name == basic_view.KILL_PHRASE:
             break
         
-        # Prompts user for edit
-        _update_specified_budget(
-                accts, _budget_name, _budget_year, _budget_month)
+        _update_specified_budget(                                               # Prompts user for edit
+                accts, _budget_name, _budget_year, _budget_month)           
         
-        # Checks for confirmation
-        _display_confirmed_edit(
-                accts, _budget_name, _budget_year, _budget_month)
+        _display_confirmed_edit(                                                # Checks for confirmation
+                accts, _budget_name, _budget_year, _budget_month)               
         
-        # Checks if whether to break revision loop
-        editing_budgets = basic_view.binary_choice(
-                "\nEdit another budget? ", False, '')
-    return accts
+        editing_budgets = basic_view.binary_choice(                             # Checks if whether to break revision loop
+                "\nEdit another budget? ", False, '')                           
+    return accts                                                                # Passed to edit_acct_budgets
              
                 
 def _select_budget (
@@ -72,13 +58,12 @@ def _select_budget (
     '''
     selecting_budget = True
     while selecting_budget:
-        # Selection of Account 
-        _specified_acct, budget_name = _scan_budget_name(flow_accts) 
+        
+        _specified_acct, budget_name = _scan_budget_name(flow_accts)            # Selection of Account 
         if budget_name == basic_view.KILL_PHRASE:
             return budget_name, 0, 0
         
-        # Selection of time frame
-        _year_choice = basic_view.view_years(
+        _year_choice = basic_view.view_years(                                   # Selection of time frame
             _specified_acct.budgets, _specified_acct.budgets, 
             "\nBudget years:")
         _month_choice = basic_view.view_months(
@@ -87,9 +72,7 @@ def _select_budget (
         return budget_name, _year_choice, _month_choice
                 
 
-# _select_budget calls _scan_budget_name to check if the user's selection 
-# is valid. _select_budget collects the date after the account name.  
-def _scan_budget_name (flow_accts: [account.Account]
+def _scan_budget_name (flow_accts: [account.Account]                            # called by _select_budget
     ) -> account.Account or None:
     '''Returns Account whose name is the specified string, None otherwise
     '''
@@ -102,7 +85,7 @@ def _scan_budget_name (flow_accts: [account.Account]
         for acct in flow_accts:
             if budget_name == acct.name:
                 finding_acct_name = False
-                return acct, budget_name
+                return acct, budget_name                                    
         
         if finding_acct_name:
             print("{} not among budgets. Try again".format(budget_name))
@@ -117,32 +100,27 @@ def _update_specified_budget (
     for acct in accts:
         if acct.name == budget_name:
             while True:
-                # Prompts user for new budget name
-                basic_view.print_loading_newline("Editing budget information")
+                basic_view.print_loading_newline("Editing budget information")  # Prompts user for new budget name
                 new_budget_str = input(
                     "Enter new budget ({}): ".format(basic_view.CURRENCY)
                     ).strip()
                 savings_or_expense = basic_view.binary_choice(
                     "\nIs account savings? ", False, '')
                 try: # Processing input
+                    # Handles input off to account - updates 
+                    # Account type and budget
                     new_budget_flt = float(new_budget_str)
+                    acct.update_budget(
+                        new_budget_flt, budget_month, budget_year)
+                    acct.update_savings_value(savings_or_expense)
+                    return
                 except:
                     print("{} not an acceptable input. Enter a number".format(
                                                             new_budget_str))
-                else:
-                    # Handles input off to account - updates 
-                    # Account type and budget
-                    acct.update_budget(
-                    new_budget_flt, budget_month, budget_year)
-                    acct.update_savings_value(savings_or_expense)
-                    break
                                     
 
-# This function calls _display_full_budgets and _create_acct_str to present
-# confirmation of the edited information and to ensure that no other accounts
-# were edited. 
-def _display_confirmed_edit (
-    accts: [account.Account], budget_name: str, budget_year: int,
+def _display_confirmed_edit (                                                   # Ensures a certain budget, and only that budget,
+    accts: [account.Account], budget_name: str, budget_year: int,               # was edited
     budget_month: int) -> str:
     '''Displays budgets for a specific period for all Accounts
     '''
@@ -150,8 +128,6 @@ def _display_confirmed_edit (
     _display_full_budgets(_create_acct_str(accts), accts)
 
 
-# _create_acct_str contains a list of lists - the internal lists contains the 
-# strings of broken Account names
 def _create_acct_str(collection: [account.Account]) -> [str]:
     '''Returns a list, each element itself being a list of strings representing
     the account name, any stylistic edits, and whether the Account is savings
@@ -161,22 +137,15 @@ def _create_acct_str(collection: [account.Account]) -> [str]:
     for acct in collection:
         acct_name_broken = [is_svg_str[acct.is_saving]]
 
-        # Case 1: " " (space) in Account name
-        if " " in acct.name:
+        if " " in acct.name:                                                    # " " (space) in Account name
             acct_name_broken.extend(_break_name_with_space(acct))
-        
-        # Case 2: " " not in Account name
-        else:
+        else:                                                                   # " " not in Account name
             acct_name_broken.extend(_break_name_without_space(acct))                    
 
         acct_names.append(acct_name_broken)
-    return acct_names
+    return acct_names                                                           # Internal list contains sparsed Account names
 
 
-# _break_name_with_space and _break_name_without_space are called by 
-# _create_acct_str to create a list of the Account name that will be 
-# passed up to _create_acct_str to be appended to a list, whose elements
-# are all lists containing strings - the broken Account names.
 def _break_name_with_space (acct: account.Account) -> [str]:
     '''Returns a list of strings that represent an Account's name with spaces,
     separated at every 7th character
@@ -194,7 +163,7 @@ def _break_name_with_space (acct: account.Account) -> [str]:
                     if str_to_append != elem[-len(str_to_append):]:
                         str_to_append += "-"
                     acct_name_broken.append(str_to_append)
-    return acct_name_broken
+    return acct_name_broken                                                     # Passed to _create_acct_str
 
 
 # For style, _break_name_without_space will break slightly differently from 
@@ -254,8 +223,7 @@ def _display_full_budgets (
     _display_net_flows(accts)
 
 
-# Called by _display_full_budgets to print total inflows and outflows. 
-def _display_net_flows(accts: [account.Account]) -> str:
+def _display_net_flows(accts: [account.Account]) -> str:                        # called by _display_full_budgets
     '''Displays on the screen total inflows and outflows
     '''
     net_inf, net_out = _calc_total_flows(accts)
@@ -275,8 +243,8 @@ def _display_net_flows(accts: [account.Account]) -> str:
     basic_view.CURRENCY) + len(str(net_inf - net_out))))
     
 
-# Called by _display_net_outflows to calculate total flows 
-def _calc_total_flows (accts: [account.Account]) -> (float, float):
+def _calc_total_flows (accts: [account.Account]) -> (float, float):             # Called by _display_net_outflows 
+
     '''Returns a tuple of two floats representing the total
     inflows and outflows of all transactions
     '''
@@ -295,18 +263,11 @@ def _calc_total_flows (accts: [account.Account]) -> (float, float):
     return inflows_total, outflows_total
 
 
-# The value of line_ind is a value between 0 and the length
-# of the longest inner list in the list returned by _create_acct_str. Because 
-# other inner lists may be shorter, if an Exception is raised, a placeholder
-# is appended to the string instead. After the iteration goes through all the 
-# inner lists once, the program prints to the screen the characters relevant 
-# at the line. After all lines have been printed, the program gives the 
-# illusion of Account names printed in columns.
 def _print_binded_acct_one_line (acct_names: [str], line_ind: int) -> str:
     '''Prints a string, which are composed of previously separated strings
     '''
-    if line_ind == 0:
-        binded_name_line = "Account Type:      "
+    if line_ind == 0:                                                           # value is between 0 and length of longest inner list
+        binded_name_line = "Account Type:      "                                # in the list returned by _create_acct_str
     elif line_ind == 1:
         binded_name_line = "Account Name:      "
     else:
@@ -316,42 +277,35 @@ def _print_binded_acct_one_line (acct_names: [str], line_ind: int) -> str:
         try:
             binded_name_line += "{:10}".format(acct_names[acct_ind][line_ind])
         except:
-            binded_name_line += "{:10}".format(" " * 8)
-    print(binded_name_line)
+            binded_name_line += "{:10}".format(" " * 8)                         # Placeholder if exception raised
+    print(binded_name_line)                                                     # Properly formatted to give illusion of columns
 
 
-# Called by _display_full_budgets, this function will print year, month, and
-# budget in the same order as the Accounts are displayed, left to right. 
-# For stylistic purposes, each unique year is displayed once. 
 def _display_accts_budgets(accts: [account.Account]) -> str: 
     '''Displays Accounts' budgets by year and month
     '''
     empty_budget_dicts = _create_budget_str_to_print(accts)
 
-    for year in empty_budget_dicts:
+    for year in empty_budget_dicts:     
         first_month_not_added = True
-        str_to_print = '{:<6}'.format(year)
-        for month_num in empty_budget_dicts[year]:
+        str_to_print = '{:<6}'.format(year)                                     # print year
+        for month_num in empty_budget_dicts[year]:                              # print month
             if first_month_not_added:
                 str_to_print += '{:<13}'.format(basic_view.MONTHS[month_num])
                 first_month_not_added = False
             else:
-                str_to_print += "\n      {:<13}".format(
+                str_to_print += "\n      {:<13}".format(                        # For style: each unique year displayed only once
                                 basic_view.MONTHS[month_num])
-            for budgets_str in empty_budget_dicts[year][month_num]:
+            for budgets_str in empty_budget_dicts[year][month_num]:             # print budget
                 str_to_print += budgets_str
         print(str_to_print)        
     
 
-# _create_budget_str_to_print is called by _display_accts_budgets and passes
-# a dictionary necessary to print the month, year, and budget of each Account. 
-# The dictionary requires that keys and values first be created,
-# which is passed by what _create_dict_budget_str returns. 
 def _create_budget_str_to_print(accts: [account.Account]) -> dict:
     '''Creates strings and dictionary necessary to display budgets by year 
     and month. Returns both in a dictionary
     '''
-    dicts_to_fill = _create_dict_budget_str(accts)
+    dicts_to_fill = _create_dict_budget_str(accts)                              # Returns keys and values 
     unique_months = _return_unique_months(accts)
     
     for acct in accts:
@@ -365,14 +319,10 @@ def _create_budget_str_to_print(accts: [account.Account]) -> dict:
                         dicts_to_fill[year][month] += '{:>10}'.format("None")
                 else:
                     dicts_to_fill[year][month] += '{:>10}'.format("N/A")
-    return dicts_to_fill
+    return dicts_to_fill                                                        # Passed to _display_accts_budgets; needed to
+                                                                                # display each Account's month, year, and budget
 
-
-# Passes the returned value to unique_months in _create_budget_str_to_print
-# in order to align budgets with their months. Otherwise all the budgets are
-# adjusted to the left without regard to Account names that don't appear
-# in all months
-def _return_unique_months (accts: [account.Account]) -> set:
+def _return_unique_months (accts: [account.Account]) -> set:                    # Ensures budgets are in line with months
     '''Returns a set composed of the unique months of all transactions 
     recorded
     '''
@@ -382,16 +332,14 @@ def _return_unique_months (accts: [account.Account]) -> set:
         for year in acct.budgets:
             for month in acct.budgets[year]:
                 unique_months.add(month)
-    return unique_months
+    return unique_months                                                        # Passed to_create_budget_str_to_print
     
 
-# create_dict_budget_str passes a series of empty dictionaries and integers
-# in order to prevent exceptions being raised in _create_budget_str_to_print. 
-def _create_dict_budget_str (accts: [account.Account]) -> dict:
-    '''Creates dictionary whose keys are the years and months of transactions
+def _create_dict_budget_str (accts: [account.Account]) -> dict:                 # Passes a series of empty dicts and ints to prevent
+    '''Creates dictionary whose keys are the years and months of transactions    
     referring to an account and whose values are empty dicts 
-    '''
-    empty_budget_dicts = {}
+    '''                                                                         # Exceptions being raised in 
+    empty_budget_dicts = {}                                                     # _create_budget_str_to_print
     
     for acct in accts:
         for year in acct.budgets:
@@ -401,3 +349,5 @@ def _create_dict_budget_str (accts: [account.Account]) -> dict:
                 if month not in empty_budget_dicts[year]:
                     empty_budget_dicts[year][month] = ''
     return empty_budget_dicts
+                    
+    
