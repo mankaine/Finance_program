@@ -19,6 +19,7 @@ View transactions.<br />
 Set budgets.<br />
 
 Written in Python. Most ideal to run in a Python interpreter/Terminal<br />
+By using this program you allow the creation of files in your computer.<br>
 
 ### REPOSITORY CHANGELOG
 #### 9/14/2016
