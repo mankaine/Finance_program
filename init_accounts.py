@@ -14,10 +14,10 @@ from ast import literal_eval
 class TransDocDNEError(Exception):
     pass
 
-FILE_NAME = ''
+FILE_NAME = '/Users/williamkhaine/Documents/programming/programs/python_projects/current/PMT/data/budgets.txt'
 
 # Module's entry point. Only public function.
-def main(accts: [Account]) -> None:
+def main() -> [Account] or None:
     '''Executes main module of the function - imports a document 
     with info containing Accounts and then saves that info to memory
     '''
@@ -25,16 +25,16 @@ def main(accts: [Account]) -> None:
                                                                                 # upon using Budget Analysis multiple times
     print_loading("Preparing Budget Analysis")
     try: 
-        a = _valid_file(accts)
+        imported = _conduct_import(accts)
         print_loading("Ready")
-        return a 
+        return imported 
     except Exception as e:
         print(("An error occurred: {}. \n",                             
               "Your Account history during this session has been",
               "cleared").format(e))
         
 
-def _valid_file(accts: [Account]) -> None:
+def _conduct_import(accts: [Account]) -> None:
     '''Determines if the FILE_NAME constant is a valid document to import
     Account history from
     '''
@@ -47,7 +47,7 @@ def _valid_file(accts: [Account]) -> None:
         raise TransDocDNEError
 
 
-def _import_accts(filepath: Path, accts: [Account]) -> None:
+def _import_accts(filepath: Path, accts: [Account]) -> [Account]:
     '''Retrieves information from a 
     '''
     with filepath.open() as opened_file:
@@ -57,7 +57,7 @@ def _import_accts(filepath: Path, accts: [Account]) -> None:
         
         return new_accts                                                        # Passed to _valid_file
         
-def _create_accts(accts: [Account], acct_info: str) -> None:
+def _create_accts(accts: [Account], acct_info: str) -> [Account]:
     '''Sorts data 
     '''
     accts_list = acct_info.split("ACCOUNTx")
