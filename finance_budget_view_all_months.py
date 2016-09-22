@@ -23,9 +23,9 @@ def view_acct_all_months(                                                       
     _display_budget(accts[acct_choice_num - 1])
     viewing_breakdown = basic_view.binary_choice(
     "View specific account? ", False, "")
-    year, month = select_timefraome(inflows.cfs, outflows.cfs)
     
     while viewing_breakdown:
+        year, month = select_timefraome(inflows.cfs, outflows.cfs)
         if _handle_acct_choice_num(accts[acct_choice_num - 1], year, month) == -1:
             break
         else:
@@ -144,15 +144,15 @@ def _create_indiv_str (field: 'account.Account.budgets attribute') -> str:      
     
 
                                                                                 # VIEWING SPECIFIC ACCOUNT BY ONE MONTH
-def select_timefraome(inflows: cashflow.CashFlows,                              # Called by view_acct_all_months
-                      outflows: cashflow.CashFlows,
+def select_timefraome(infcfs: dict,                                             # Called by view_acct_all_months
+                      outcfs: dict,
                       ) -> (int, int):
     '''Returns a 2-tuple representing year and month of selected Account 
     timeframe
     '''
     year = basic_view.view_years(
-                inflows.cfs, outflows.cfs, "\Years with Account")
-    month = basic_view.view_months(year, inflows.cfs, outflows.cfs, 
+                infcfs, outcfs, "Years with Account")
+    month = basic_view.view_months(year, infcfs, outcfs, 
                                        "Month with Account")
     return (year, month)                                                        # Passed to _handle_acct_choice_num,
                                                                                 # view_budget_by_month to find specific budget info    
