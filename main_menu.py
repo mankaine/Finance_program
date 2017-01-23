@@ -1,119 +1,72 @@
 # main_menu.py
-# by mankaine
-# July 12, 2016
+# Script to execute Finance Program in Command Line.  
 
-# Implements main menu in shell user interface.
-# See read_me.txt for example implementation.
+import trans_entry
+import trans_view
+import trans_edit
+import account_init
+import account_edit 
+import account_view
+import account_analysis
+import initialize
+import save 
+import basecui as bc
+import os 
 
-import finance_entry
-import finance_edit
-import finance_view
-import finance_export
-import finance_import
-import finance_budget_menu
-import settings
+# Initialiation of variables 
+data_file_str="data.txt"
+menu = """
+MAIN MENU
+========================================
+    [ntr]    : Enter Transactions
+    [edt]    : Edit Transactions  
+    [vts]    : View Transactions
+    [eda]    : Edit Accounts
+    [vwa]    : View Accounts
+    [ana]    : Analyze Accounts 
+    [esc]    : Exit menu
+"""
 
-import basic_view
+# Script
+# Ensure file exists
+if not os.path.isfile(data_file_str): 
+    data_file = open(data_file_str, "w")
+    data_file.close()  
+variables, accounts, transactions_dirty=initialize.main(data_file_str)
+transactions = bc.remove_duplicates(transactions_dirty) # Remove impure Transactions (duplicates)
 
-import cashflow
-
- 
-MAIN_MENU = '''
-MAIN MENU:
-1. Enter Transactions
-2. Edit Transactions
-3. Import Transactions
-4. Export Transactions
-5. View Transactions
-6. Budget Accounts
-7. Access Settings
-8. Exit
-'''
-
-# run_user_interface implements main_menu_input from the basic_view module
-# and passes the value returned to _main_menu_options. If the value returned
-# corresponds to the exit choice, the program breaks out of the loop. 
-# 
-# _main_menu_input processes and determines if the choice made is valid, and 
-# prompts the user until a valid choice is made.
-
-
-# _main_menu_options determines how the value _main_menu_input returns 
-# should be processed. Its arguments, a Revenues object, an Expenses 
-# object (accessed only by entering transactions), and a dictionary
-# (passed into all choices), are updated every time a transaction
-# is entered, edited, or imported. This event is coded in 
-# run_user_interface. 
-def _main_menu_options (choice: int, inflows: cashflow.CashFlows, 
-        outflows: cashflow.CashFlows) -> None:
-    '''Transfers control over to other menus from the main menu
-    '''
-    if choice == 1: 
-        basic_view.print_loading_newline("ENTERING TRANSACTIONS")
-        finance_entry.handle_entry_choice(inflows, outflows)
-    
-    elif choice == 2: 
-        if inflows.cfs == {} and outflows.cfs == {}:
-            print("\nINACESSABLE - No transactions entered")
+# Menu looping 
+while True: 
+    print(menu)
+    try: 
+        choice = input("Your choice: ").rstrip()
+        if choice == "ntr":
+            transactions += trans_entry.main()
+            # Add data to Account objects
+            accounts_t=(account_init.create_from(transactions))
+            # Account for duplicate Accounts created from Transactions 
+            accounts=account_init.merge_accounts(accounts_t + accounts)
+        elif choice == "edt":
+            trans_edit.main(transactions, accounts)
+            # Many Accounts may be updated
+            for a in accounts: a.update_all_reached()
+        elif choice == "vts":
+            trans_view.main(transactions)
+        elif choice == "eda":
+            account_edit.main(accounts)
+        elif choice == "vwa":
+            account_view.main(accounts)
+        elif choice == "ana":
+            account_analysis.main(accounts)
+        elif choice == "esc":
+            break
         else:
-            basic_view.print_loading_newline("EDITING TRANSACTIONS")
-            finance_edit.handle_edit_choice(inflows, outflows)
-
-    elif choice == 3:
-        basic_view.print_loading_newline("MOVING TO IMPORT MENU")
-        finance_import.handle_import_choice(inflows, outflows)
-
-    elif choice == 4: 
-        if inflows.cfs == {} and outflows.cfs == {}:
-            print("\nINACESSABLE - No transactions entered")
-        else:
-            basic_view.print_loading_newline("EXPORTING TRANSACTIONS")
-            finance_export.handle_export_choice(inflows, outflows)
-     
-    elif choice == 5: 
-        if inflows.cfs == {} and outflows.cfs == {}:
-            print("\nINACESSABLE - No transactions entered")
-        else:
-            basic_view.print_loading_newline("MOVING TO DISPLAY MENU")
-            finance_view.handle_view_choice(inflows, outflows)
-            
-    elif choice == 6:
-        if inflows.cfs == outflows.cfs:
-            print("\nINACESSABLE - No transactions entered")
-        else:
-            basic_view.print_loading_newline("BUDGETING TRANSACTIONS")
-            finance_budget_menu.handle_budget_choice(inflows, outflows)
-  
-    elif choice == 7:
-        basic_view.print_loading_newline("ACESSING SETTINGS")
-        settings.run_setting_interface()
-
-    elif choice == 8:
-        basic_view.print_loading_newline("EXITING PROGRAM")
+            raise ValueError("Choice {} unacceptable. Try again.".format(choice))
+    except ValueError as e:
+        print("    An error has occurred: {}".format(e))
+    except Exception as e:
+        raise
+        print("    An error has occurred: {}".format(e)) 
         
-
-# The model modules are designed to handle a large number of transactions, so 
-# messages are constantly posted about the status of the program (which module
-#  it's on, what it's loading, etc.). The program starts with a blank slate 
-# Revenues, Expenses, and dict object and changes the values as the user enters 
-# and edits. The final option is to exit the program, which is represented by 
-# choosing '8' to break out of the while loop. 
-def run_user_interface():
-    '''Runs program
-    '''
-    basic_view.print_loading("FINANCE PROGRAM")
-    
-    inflows = cashflow.CashFlows() 
-    outflows = cashflow.CashFlows() 
-    
-    using_program = True
-    while using_program:
-        choice = basic_view.menu_input(MAIN_MENU, 9)
-        _main_menu_options(choice, inflows, outflows)
-        if choice in [8, basic_view.KILL_PHRASE]:
-            using_program = False
-    basic_view.print_loading("PROGRAM EXITED")
-
-
-if __name__ =='__main__':
-    run_user_interface()
+# Saving Data 
+save.main(transactions, accounts, variables, data_file_str)
