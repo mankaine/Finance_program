@@ -49,7 +49,8 @@ while True:
         elif choice == "edt":
             trans_edit.main(transactions, accounts)
             # Many Accounts may be updated
-            for a in accounts: a.update_all_reached()
+            for a in accounts: 
+                a.update_all_reached()
         elif choice == "vts":
             trans_view.main(transactions)
         elif choice == "eda":
@@ -65,8 +66,7 @@ while True:
     except ValueError as e:
         print("    An error has occurred: {}".format(e))
     except Exception as e:
-        raise
-        print("    An error has occurred: {}".format(e)) 
-        
+        print("    Fatal Error: {}".format(e)) 
+
 # Saving Data 
 save.main(transactions, accounts, variables, data_file_str)

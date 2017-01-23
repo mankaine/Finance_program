@@ -2,23 +2,21 @@
 # A class to compare a chosen Account's rate of spending to saving.
 
 from account import Account, Budget
-from basecui import months_abv, kind_to_str
+from basecui import months_abv, kind_to_str, months
 import tkinter as tk 
+from graph import Graph
 
 standard_font = ("Helvetica", -10)
 
-class AccountGraphCompare:
-    def __init__(self, a: Account, it: [(int, int)], master=None):
-        self._a     = a
-        self._it    = sorted(it, key=lambda x: (x[0], x[1])) 
-    
-        self._t     = tk.Tk()
-            
-        min_year, min_month = self._it[0][0]+1,  months_abv(self._it[0][1])
-        max_year, max_month = self._it[-1][0]+1, months_abv(self._it[-1][1])
+class AccountGraphCompare(Graph):
+    def __init__(self, a: Account, tf: [(int, int)], master=None):
+        Graph.__init__(self, a, tf, master)
+        
+        min_year, min_month = self._tf[0][0]+1,  months(self._tf[0][1])
+        max_year, max_month = self._tf[-1][0]+1, months(self._tf[-1][1])
         self._t.title(
-            "Goals vs. Reached of Account "+ a["name"]+" ({}) from {} {} to {} {}".format(
-                kind_to_str[a["kind"]],min_month, min_year, max_month, max_year))
+            "Goals vs. Reached of Account "+ a.get_name()+" ({}) from {} {} to {} {}".format(
+                kind_to_str[a.get_kind()],min_month, min_year, max_month, max_year))
             
         self._canvas = tk.Canvas(master=self._t, height=1200, width=800)
         self._canvas.grid(row=0,column=0,sticky = tk.N + tk.S + tk.W + tk.E)
@@ -33,54 +31,45 @@ class AccountGraphCompare:
         drawing of the canvas and redraws it to fit the current size of the 
         canvas
         """
-        self._canvas.delete(tk.ALL)
-        h = self._canvas.winfo_height()
-        w = self._canvas.winfo_width()
-        w_spacing = w/len(self._it)
-        self._draw_axes(h, w)
+        h,w = Graph.reset(self)
+        w_spacing = w/len(self._tf)
+        Graph.draw_axes(h, w, 1)
         self._draw_connections(h, w_spacing) 
         self._draw_points(h, w_spacing)
         print("Graph Displayed")                                                # Confirmation
         
-        
-    def _draw_axes(self, h, w):
-        """Draws the axes of a graph 
-        """
-        self._canvas.create_line(0, h-30, w, h-30)                              # x axis
-        self._canvas.create_line(20, 0, 20, h)                                  # y-axis
-
     
     def _draw_connections(self, h, w_dist):
         """Draws the lines between points on a graph. The lines are from 
         goal point to goal point and reached point to reached point.
         """
         largest = max(
-            max(self._a[("reached", y, m)] for (y,m) in self._it),
-            max(self._a[("goal", y, m)] for (y,m) in self._it))
-        for i in range(len(self._it) - 1): 
-            y0, m0 = self._it[i][0], self._it[i][1]
-            y1, m1 = self._it[i+1][0], self._it[i+1][1]
+            max(self._a.get_reached(y,m) for (y,m) in self._tf),
+            max(self._a.get_goal(y,m) for (y,m) in self._tf))
+        for i in range(len(self._tf) - 1): 
+            y0, m0 = self._tf[i][0], self._tf[i][1]
+            y1, m1 = self._tf[i+1][0], self._tf[i+1][1]
             
-            perc0r = 1 - (self._a[("reached", y0, m0)]/largest)                 # Reached
-            perc1r = 1 - (self._a[("reached", y1, m1)]/largest)
+            perc0r = 1 - (self._a.get_reached(y0,m0)/largest)                 # Reached
+            perc1r = 1 - (self._a.get_reached(y1,m1)/largest)
                         
             y_point0r = 10+(perc0r*(h-10-20))
             y_point1r = 10+(perc1r*(h-10-20))
             
             self._canvas.create_line(
-                w_dist * self._it.index((y0,m0)) + 25, y_point0r, 
-                w_dist * self._it.index((y1,m1)) + 25, y_point1r,
+                w_dist * self._tf.index((y0,m0)) + 25, y_point0r, 
+                w_dist * self._tf.index((y1,m1)) + 25, y_point1r,
                 fill="#f00")
 
-            perc0g = 1 - (self._a[("goal", y0, m0)]/largest)                    # Goal
-            perc1g = 1 - (self._a[("goal", y1, m1)]/largest)
+            perc0g = 1 - (self._a.get_goal(y0,m0)/largest)                    # Goal
+            perc1g = 1 - (self._a.get_goal(y1,m1)/largest)
 
             y_point0g = 10+(perc0g*(h-10-20))
             y_point1g = 10+(perc1g*(h-10-20))
             
             self._canvas.create_line(
-                w_dist * self._it.index((y0,m0)) + 25, y_point0g, 
-                w_dist * self._it.index((y1,m1)) + 25, y_point1g,
+                w_dist * self._tf.index((y0,m0)) + 25, y_point0g, 
+                w_dist * self._tf.index((y1,m1)) + 25, y_point1g,
                 fill="#00f")
     
     
@@ -89,45 +78,46 @@ class AccountGraphCompare:
         budgets 
         """
         largest = max(
-            max(self._a[("reached", y, m)] for (y,m) in self._it),
-            max(self._a[("goal", y, m)] for (y,m) in self._it))
-        for y,m in self._it: 
-            perc_r = 1 - (self._a[("reached", y, m)]/largest)
+            max(self._a.get_reached(y,m) for (y,m) in self._tf),
+            max(self._a.get_goal(y,m) for (y,m) in self._tf))
+        for y,m in self._tf: 
+            perc_r = 1 - (self._a.get_reached(y,m)/largest)
             y_point_r = 10+(perc_r*(h-10-20))
             
-            perc_g = 1 - (self._a[("goal", y, m)]/largest)
+            perc_g = 1 - (self._a.get_goal(y,m)/largest)
             y_point_g = 10+(perc_g*(h-10-20))
             radius = 2
             
             self._canvas.create_text(
-                w_dist * self._it.index((y,m)) + 25, h - 15, 
+                w_dist * self._tf.index((y,m)) + 25, h - 15, 
                 text=months_abv(m)+"\n"+str(y), font=standard_font)             # Labels on the x-axis
 
             self._canvas.create_oval(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_r-radius, 
-                w_dist * self._it.index((y,m)) + 25 + radius, y_point_r+radius,
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_r-radius, 
+                w_dist * self._tf.index((y,m)) + 25 + radius, y_point_r+radius,
                 fill="#f00", outline="#f00")                                    # Points of reached
             
             self._canvas.create_text(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_r+10,
-                text="{:.2f}".format(self._a[("reached", y, m)]/100, 2),
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_r+10,
+                text="{:.2f}".format(self._a.get_reached(y,m)/100, 2),
                 font=standard_font, fill="#f00")                                # Values of reached
 
             self._canvas.create_oval(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_g-radius, 
-                w_dist * self._it.index((y,m)) + 25 + radius, y_point_g+radius,
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_g-radius, 
+                w_dist * self._tf.index((y,m)) + 25 + radius, y_point_g+radius,
                 fill="#00f", outline="#00f")                                    # Points of goal
             
             self._canvas.create_text(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_g+10,
-                text="{:.2f}".format(self._a[("goal", y, m)]/100, 2),
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_g+10,
+                text="{:.2f}".format(self._a.get_goal(y,m)/100, 2),
                 font=standard_font, fill="#00f")                                # Values of goal
             
             
     def view(self):
-        self._t.mainloop()
+        Graph.view(self)
 
 
+# Testing
 if __name__ == "__main__": 
     from transaction import Transaction
     t0  = Transaction(2015, 0, 12, "Fast Food", "Cash", "In-n-Out", 100)

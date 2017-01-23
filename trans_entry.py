@@ -16,6 +16,9 @@ TRANSACTION MENU:
 """
 
 def main() -> [Transaction]:
+    """Runs menu to create transactions. Returns a list of 
+    Transactions created from user input 
+    """
     ts = list()
     while True: 
         print(_menu)
@@ -42,7 +45,7 @@ def _enter(y=-1, m=-1) -> Transaction:
     second iteration to edit 
     """
     print("Entering transaction\n" + ("="*40))
-    if y < 0:                                                                   # All ints representing months are non-negative
+    if y < 0: # All ints representing months are non-negative
         y = _prompt_year()
     if m < 0:
         m = _prompt_month()
@@ -69,6 +72,8 @@ def _opt_edit(t: Transaction) -> Transaction:
 
 
 def _enter_block():
+    """Loop to enter transactions under a specific month and year
+    """
     ts = list()
     print("Entering year and month\n" + ("="*40))
     y = _prompt_year()
@@ -100,7 +105,9 @@ def _prompt_year() -> int:
             choice_int = int(eval(choice)) - 1
             valid.year(choice_int)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_year: {} is not an option because {} Try again".format(choice, e)) 
+            print(
+                "    An error has occurred: transentry._prompt_year: " + \
+                "{} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice_int
         
@@ -115,7 +122,8 @@ def _prompt_month() -> int:
             choice_int = int(eval(choice)) - 1
             valid.month(choice_int)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_month: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_month: " +\
+                  "{} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice_int
         
@@ -130,7 +138,8 @@ def _prompt_day(y: int, m: int) -> int:
             choice_int = int(eval(choice))
             valid.day(y,m,choice_int)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_day: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_day: " + \
+                  "{} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice_int - 1
 
@@ -143,7 +152,8 @@ def _prompt_dr_account() -> str:
         try: 
             valid.dr_account(choice)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_dr_account: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_dr_account:"+\
+            " {} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice
 
@@ -156,7 +166,8 @@ def _prompt_cr_account() -> str:
         try: 
             valid.cr_account(choice)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_cr_account: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_cr_account:" +\
+                  " {} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice 
 
@@ -169,7 +180,8 @@ def _prompt_description() -> str:
         try: 
             valid.cr_account(choice)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_description: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_description:"+\
+                  " {} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice 
 
@@ -182,7 +194,8 @@ def _prompt_currency() -> str:
         try: 
             valid.currency(choice)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_currency: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_currency:"+\
+                  " {} is not an option because {} Try again".format(choice, e)) 
         else: 
             return choice 
 
@@ -196,7 +209,8 @@ def _prompt_amount() -> int:
         try: 
             valid.amount(int_choice)
         except Exception as e: 
-            print("    An error has occurred: transentry._prompt_amount: {} is not an option because {} Try again".format(choice, e)) 
+            print("    An error has occurred: transentry._prompt_amount:" +\
+                  " {} is not an option because {} Try again".format(choice, e)) 
         else: 
             return int_choice 
 

@@ -4,21 +4,19 @@
 from account import Account 
 from basecui import months_abv, kind_to_str 
 import tkinter as tk
+from graph import Graph
 
 standard_font = ("Helvetica", -10)
 
-class AccountGraphCashFlow:
-    def __init__(self, a: Account, it: [(int, int)], master=None):
-        self._a     = a
-        self._it    = sorted(it, key=lambda x: (x[0], x[1])) 
-    
-        self._t     = tk.Tk()
+class AccountGraphCashFlow(Graph):
+    def __init__(self, a: Account, tf: [(int, int)], master=None):
+        Graph.__init__(self, a, tf, master)
             
-        min_year, min_month = self._it[0][0]+1,  months_abv(self._it[0][1])
-        max_year, max_month = self._it[-1][0]+1, months_abv(self._it[-1][1])
+        min_year, min_month = self._tf[0][0]+1,  months_abv(self._tf[0][1])
+        max_year, max_month = self._tf[-1][0]+1, months_abv(self._tf[-1][1])
         self._t.title(
-            "Cash Flow of Account "+ a["name"]+" ({}) from {} {} to {} {}".format(
-                kind_to_str[a["kind"]],min_month, min_year, max_month, max_year))
+            "Cash Flow of Account "+ a.get_name()+" ({}) from {} {} to {} {}".format(
+                kind_to_str[a.get_kind()],min_month, min_year, max_month, max_year))
             
         self._canvas = tk.Canvas(master=self._t, height=1200, width=800)
         self._canvas.grid(row=0,column=0,sticky = tk.N + tk.S + tk.W + tk.E)
@@ -33,73 +31,66 @@ class AccountGraphCashFlow:
         the canvas and redraws the axes, labels, points, and lines that 
         constitute the graph.
         """
-        self._canvas.delete(tk.ALL)
-        h = self._canvas.winfo_height()
-        w = self._canvas.winfo_width()
-        w_spacing = w/len(self._it)
-        self._draw_axes(h, w)
+        h,w = Graph.reset(self)
+                
+        w_spacing = w/len(self._tf)
+        Graph.draw_axes(self, h, w)
         self._draw_connections(h, w_spacing) 
         self._draw_points(h, w_spacing)
         print("Graph Displayed")                                                # Confirmation
-
-
-    def _draw_axes(self, h, w):
-        """Draws the axes of a graph 
-        """
-        self._canvas.create_line(0, (h-40)/2, w, (h-40)/2)                      # x axis
-        self._canvas.create_line(20, 0, 20, h)                                  # y-axis
 
     
     def _draw_connections(self, h, w_dist):
         """Draws the lines between points on a graph
         """
-        largest = max(abs(self._a[("remain", y, m)]) for (y,m) in self._it)
-        for i in range(len(self._it) - 1): 
-            y0, m0 = self._it[i][0], self._it[i][1]
-            perc0r = (1 - ((self._a[("remain", y0, m0)]/largest) if largest != 0 else 1)) / 2
+        largest = max(abs(self._a.get_remain(y,m)) for (y,m) in self._tf)
+        for i in range(len(self._tf) - 1): 
+            y0, m0 = self._tf[i][0], self._tf[i][1]
+            perc0r = (1 - ((self._a.get_remain(y0,m0)/largest) if largest != 0 else 1)) / 2
             y_point0r = (h-40)*(perc0r) if perc0r != 0 else (h/2)-20
 
-            y1, m1 = self._it[i+1][0], self._it[i+1][1]            
-            perc1r = (1 - ((self._a[("remain", y1, m1)]/largest) if largest != 0 else 1)) / 2
+            y1, m1 = self._tf[i+1][0], self._tf[i+1][1]            
+            perc1r = (1 - ((self._a.get_remain(y1,m1)/largest) if largest != 0 else 1)) / 2
             y_point1r = (h-40)*(perc1r) if perc1r != 0 else (h/2)-20
             
             self._canvas.create_line(
-                w_dist * self._it.index((y0,m0)) + 25, y_point0r, 
-                w_dist * self._it.index((y1,m1)) + 25, y_point1r,
+                w_dist * self._tf.index((y0,m0)) + 25, y_point0r, 
+                w_dist * self._tf.index((y1,m1)) + 25, y_point1r,
                 fill="#4B8A08" if (y_point0r-y_point1r >= 0) else "#f00")
 
     
     def _draw_points(self, h, w_dist):
         """Draws points indicating net cash flows on the canvas 
         """
-        largest = max(abs(self._a[("remain", y, m)]) for (y,m) in self._it)
-        for y,m in self._it: 
-            perc_r = (1 - ((self._a[("remain", y, m)]/largest) if largest != 0 else 1)) / 2
+        largest = max(abs(self._a.get_remain(y,m)) for (y,m) in self._tf)
+        for y,m in self._tf: 
+            perc_r = (1 - ((self._a.get_remain(y,m)/largest) if largest != 0 else 1)) / 2
             y_point_r = (h-40)*(perc_r) if perc_r != 0 else (h/2)-20
                                     
             radius = 2
             
             self._canvas.create_text(
-                w_dist * self._it.index((y,m)) + 25, h - 15, 
+                w_dist * self._tf.index((y,m)) + 25, h - 15, 
                 text=months_abv(m)+"\n"+str(y), font=standard_font)             # Labels on the x-axis
 
             self._canvas.create_oval(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_r-radius, 
-                w_dist * self._it.index((y,m)) + 25 + radius, y_point_r+radius,
-                fill="#4B8A08" if self._a[("remain", y, m)] >= 0 else "#f00",
-                outline="#4B8A08" if self._a[("remain", y, m)] >= 0 else "#f00")    # Points of reached
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_r-radius, 
+                w_dist * self._tf.index((y,m)) + 25 + radius, y_point_r+radius,
+                fill="#4B8A08" if self._a.get_remain(y,m) >= 0 else "#f00",
+                outline="#4B8A08" if self._a.get_remain(y,m) >= 0 else "#f00")    # Points of reached
             
             self._canvas.create_text(
-                w_dist * self._it.index((y,m)) + 25 - radius, y_point_r+10,
-                text="{:.2f}".format(self._a[("remain", y, m)]/100, 2),
+                w_dist * self._tf.index((y,m)) + 25 - radius, y_point_r+10,
+                text="{:.2f}".format(self._a.get_remain(y,m)/100, 2),
                 font=standard_font, 
-                fill="#4B8A08" if self._a[("remain", y, m)] >= 0 else "#f00")   # Values of reached
+                fill="#4B8A08" if self._a.get_remain(y,m) >= 0 else "#f00")   # Values of reached
 
             
     def view(self):
-        self._t.mainloop()
+        Graph.view(self)
 
 
+# Testing
 if __name__ == "__main__": 
     from transaction import Transaction
     from account import Budget 

@@ -3,7 +3,7 @@
 
 from account import Account
 from trans_view import view, header
-from basecui import months, months_abv, trans_timeframe, months_to_int, select_account
+import basecui as bc 
 
 max_char = 100
 
@@ -23,14 +23,17 @@ ACCOUNT VIEW MENU
 def _um(a: Account, y: int) -> [int]:
     """Returns integers representing unique months of an Account and breakout integer
     """
-    return sorted(
-        set(months_abv(m) for m in a["budgets"][y]), 
-        key=lambda x: months_to_int[x]) + [-1]
+    if y in a.get_budgets(): 
+        return sorted(
+        set(bc.months_abv(m) for m in a.get_budgets(y)), 
+        key=lambda x: bc.months_to_int[x]) + [-1]
+    return [-1]
+    
         
 def _uy(ats: [Account]) -> [int]:
     """Returns integers representing unique years and breakout integer
     """
-    return sorted(set(y for a in ats for y in a["budgets"])) + [-1]
+    return sorted(set(y for a in ats for y in a.get_budgets())) + [-1]
 
 
 def _um_ats(ats: "generator", y: int) -> [int]:
@@ -38,8 +41,8 @@ def _um_ats(ats: "generator", y: int) -> [int]:
     and breakout integer
     """
     return sorted(
-        set(months_abv(m) for a in ats for m in a["budgets"][y]), 
-        key=lambda x: months_to_int[x]) + [-1]
+        set(bc.months_abv(m) for a in ats for m in a.get_budgets(y)), 
+        key=lambda x: bc.months_to_int[x]) + [-1]
 
 
 def main(ats: [Account]) -> None:
@@ -64,125 +67,143 @@ def main(ats: [Account]) -> None:
 def _ats(ats: [Account]) -> None:
     """Executes choice to view all Transactions of an Account
     """
-    a = select_account(ats)
-    print("\nDisplaying Transactions for {}\n".format(a["name"])+_display_all_trans(a, bool))
+    a = bc.select_account(ats)
+    print("\nDisplaying Transactions for {}\n".format(
+        a.get_name())+_display_all_trans(a, bool))
     
     
 def _cts(ats: [Account]) -> None:
     """Executes choice to view transactions of an Account over a custom time period
     """
-    def _cond(t): return y0 <= t["year"] <= y1 and months_to_int[m0] <= t["month"] <= months_to_int[m1]
-    a = select_account(ats)
+    def _cond(t): return y0 <= t.get_year() <= y1 and \
+        bc.months_to_int[m0] <= t.get_month() <= bc.months_to_int[m1]
+    a = bc.select_account(ats)
     
-    print("\nSelect Start Timeframe\n"+("="*40))
-    y0 = trans_timeframe(_uy(ats))
+    print("\nSelect Start Timeframe\n"+("="*40))            # Timeframe selection
+    y0 = bc.trans_timeframe(_uy(ats))
     if y0 == -1: 
         return
     print()
-    m0 = trans_timeframe(_um(a, y0))
+    m0 = bc.trans_timeframe(_um(a, y0))
     if m0 == -1:
         return
 
     print("\nSelect End Timeframe\n"+("="*40))
-    y1 = trans_timeframe(_uy(ats))
+    y1 = bc.trans_timeframe(_uy(ats))
     if y1 == -1: 
         return  
     print()
-    m1 = trans_timeframe(_um(a, y1))
+    m1 = bc.trans_timeframe(_um(a, y1))
     if m1 == -1:
         return
 
-    print("\nDisplaying Transactions for {} from {} {} to {} {}\n".format(a["name"], m0, y0, m1, y1))
+    print(
+        "\nDisplaying Transactions for {} from {} {} to {} {}\n".format(
+            a.get_name(), m0, y0, m1, y1))
     print(_display_all_trans(a, _cond))
 
  
 def _omy(ats: [Account]) -> None: 
     """Executes choice to view one account for one year and one month
     """
-    a = select_account(ats)
+    a = bc.select_account(ats)
     print()
-    y0 = trans_timeframe(_uy(ats))
+    y0 = bc.trans_timeframe(_uy(ats))
     if y0 == -1: 
         return
     print()  
-    m0 = trans_timeframe(_um(a, y0))
+    m0 = bc.trans_timeframe(_um(a, y0))
     if m0 == -1:
         return
-    print(_view_tf_budget(a, (y0, months_to_int[m0] )))
+    print(_view_tf_budget(a, (y0, bc.months_to_int[m0] )))
 
 
 def _oaa(ats: [Account]) -> None:
     """Executes choice to view one account for all years and months
     """
-    a = select_account(ats)
+    a = bc.select_account(ats)
     print(_view_all_budgets(a, max_char))
 
     
 def _ocst(ats: [Account]) -> None: 
     """Executes choice to view one account over a custom period
     """
-    def _cond(y,m): return (y0,months_to_int[m0]) <= (y,m) <= (y1,months_to_int[m1])
-    a = select_account(ats)
+    def _cond(y,m): return (y0,bc.months_to_int[m0]) <= (y,m) <= (y1,bc.months_to_int[m1])
+    a = bc.select_account(ats)
     
-    print("\nSelect Start Timeframe\n"+("="*40))
-    y0 = trans_timeframe(_uy(ats))
+    print("\nSelect Start Timeframe\n"+("="*40))             # Timeframe selection - copy in account analysis module
+    y0 = bc.trans_timeframe(_uy(ats))
     if y0 == -1: 
         return
     print()
-    m0 = trans_timeframe(_um(a, y0))
+    m0 = bc.trans_timeframe(_um(a, y0))
     if m0 == -1:
         return
 
     print("\nSelect End Timeframe\n"+("="*40))
-    y1 = trans_timeframe(_uy(ats))
+    y1 = bc.trans_timeframe(_uy(ats))
     if y1 == -1: 
         return  
     print()
-    m1 = trans_timeframe(_um(a, y1))
+    m1 = bc.trans_timeframe(_um(a, y1))
     if m1 == -1:
         return
 
-    it = [(y,m) for y in a["budgets"] for m in a["budgets"][y] if _cond(y,m)]
-    print("\nDisplaying {} with Budgets from {} {} to {} {}".format(a["name"], m0, y0+1, m1, y1+1))
-    print(_view_range_budget(a, sorted(it, key=lambda x: (x[0], x[1]), reverse=True), max_char))
+    it = [(y,m) for y in a.get_budgets() \
+          for m in a.get_budgets()[y] if _cond(y,m)]
+    print(
+        "\nDisplaying {} with Budgets from {} {} to {} {}".format(
+            a.get_name(), m0, y0+1, m1, y1+1))
+    print(_view_range_budget(
+        a, sorted(it, key=lambda x: (x[0], x[1]), reverse=True), max_char))
     
     
 def _acst(ats: [Account]) -> None:
     """Executes choice to view all accounts in a specific timeframe
     """
-    def _cond1(y,m): return (y0,months_to_int[m0]) <= (y,m) <= (y1,months_to_int[m1])
+    def _cond1(y,m):
+        return (y0,bc.months_to_int[m0]) <= (y,m) <= (y1,bc.months_to_int[m1])
     def _cond2(a):
         for y in range(y0,y1+1):
-            for m in range(months_to_int[m0],months_to_int[m1]+1):
-                if (y in a["budgets"] and (m in a["budgets"][y])):
+            for m in range(bc.months_to_int[m0],bc.months_to_int[m1]+1):
+                if (y in a.get_budgets() and (m in a.get_budgets()[y])):
                     return True
         return False 
          
-    print("\nSelect Start Timeframe\n"+("="*40))
-    y0 = trans_timeframe(_uy(ats))
+    print("\nSelect Start Timeframe\n"+("="*40))             # Timeframe selection
+    y0 = bc.trans_timeframe(_uy(ats))
     if y0 == -1: 
         return
     print()
-    m0 = trans_timeframe(_um_ats((a for a in ats if y0 in a["budgets"]), y0))
+    m0 = bc.trans_timeframe(_um_ats(
+        (a for a in ats if y0 in a.get_budgets()), y0))
     if m0 == -1:
         return
 
     print("\nSelect End Timeframe\n"+("="*40))
-    y1 = trans_timeframe(_uy(ats))
+    y1 = bc.trans_timeframe(_uy(ats))
     if y1 == -1: 
         return  
     print()
-    m1 = trans_timeframe(_um_ats((a for a in ats if y1 in a["budgets"]), y1))
+    m1 = bc.trans_timeframe(_um_ats(
+        (a for a in ats if y1 in a.get_budgets()), y1))
     if m1 == -1:
         return
 
-    it = sorted(set((y,m) for a in ats for y in a["budgets"] for m in a["budgets"][y] if _cond1(y,m)), reverse=True)
-    print("\nDisplaying All Accounts with Budgets from {} {} to {} {}".format(m0, y0+1, m1, y1+1))
+    it = sorted(
+        set(
+        (y,m) for a in ats for y in a.get_budgets() for m in a.get_budgets(y) \
+        if _cond1(y,m)), reverse=True)
+    print("\nDisplaying All Accounts with Budgets from {} {} to {} {}".format(
+        m0, y0+1, m1, y1+1))
     print(_view_range_budgets([a for a in ats if _cond2(a)], it, max_char))
 
 
 def _aaa(ats: [Account]) -> None:
-    it = sorted(set((y,m) for a in ats for y in a["budgets"] for m in a["budgets"][y]), reverse=True)
+    it = sorted(
+        set(
+        (y,m) for a in ats for y in a.get_budgets() for m in a.get_budgets()[y]), 
+                reverse=True)
     print("Displaying All Accounts for All Budgets")
     print(_view_range_budgets(ats, it, max_char))
                 
@@ -190,32 +211,35 @@ def _aaa(ats: [Account]) -> None:
 def _display_all_trans(a: Account, f: "function") -> str:
     """Returns string of an Account's Transactions objects
     """
-    ts = sorted((t for t in a["ts"] if f(t)), key=lambda x: (x["year"], x["month"], x["day"]))
+    ts = sorted((t for t in a.get_ts() if f(t)), 
+                key=lambda x: (x.get_year(), x.get_month(), x.get_day()))
     return header(True) + "\n" + "\n".join(view(t, ts.index(t)+1) for t in ts)
 
 
 def _display_budget_trans(a: Account, tf: (int, int)) -> str:
     """Returns string of account Transaction based on timeframe 
     """
-    ts = sorted( (t for t in a["ts"] if (t["year"], t["month"]) == tf),
-        key=lambda x: (x["year"], x["month"], x["day"]))
+    ts = sorted(
+        (t for t in a.get_ts() if (t.get_year(), t.get_month()) == tf),
+        key=lambda x: (x.get_year(), x.get_month(), x.get_day()))
     return header(True) + "\n" + "\n".join(view(t, ts.index(t)+1) for t in ts)
 
 
 def _view_tf_budget(a: Account, tf: (int, int)) -> str:
     """Returns string of Account's budget tuple within timeframe
     """ 
-    # Note: 0th index of tf is year; 1st index if tf is month
-    hd = "Account {} for {} {}\n".format(a["name"], tf[0]+1, months(tf[1])) 
+    chosen_year, chosen_month = tf
+    hd = "Account {} for {} {}\n".format(
+        a.get_name(), chosen_year+1, bc.months(chosen_month)) 
     
-    amt = "{:>.2f}".format(a[("goal",)+tf]/100)
+    amt = "{:>.2f}".format(a.get_goal(chosen_year, chosen_month)/100)
     amt_full = "\tGoal........" + ("."*(10-len(amt))) + amt + "\n"
 
-    rch = "{:>.2f}".format(a[("reached",)+tf]/100)
+    rch = "{:>.2f}".format(a.get_reached(chosen_year, chosen_month)/100)
     reach_full = "\tReached....." + ("."*(10-len(rch))) + amt + "\n"
     
-    rmn = "{:>.2f}".format(a[("remain",)+tf]/100)
-    rem_full = "\tRemain....." + ("."*(10-len(rmn))) + amt + "\n"
+    rmn = "{:>.2f}".format(a.get_remain(chosen_year, chosen_month)/100)
+    rem_full = "\tRemain......" + ("."*(10-len(rmn))) + amt + "\n"
     
     return "\n"+hd+("="*40)+"\n"+amt_full+reach_full+rem_full
     
@@ -225,7 +249,7 @@ def _view_all_budgets(a: Account, width: int) -> str:
     Prints out strings with the specified maximum width  
     """
     r = sorted(
-        [(y,m) for y in a["budgets"] for m in a["budgets"][y]], 
+        [(y,m) for y in a.get_budgets() for m in a.get_budgets(y)], 
         key=lambda x: (x[0], x[1]), reverse = True)
     return "\n"+_view_range_budget(a, r, width)
     
@@ -240,7 +264,7 @@ def _view_range_budget(a: Account, timeframe: [(int, int)], width: int) -> str:
         
     while set_apprch != set_lim: 
         set_apprch += 1
-        title_sub_str = "Account {} for set {}".format(a["name"], set_apprch)
+        title_sub_str = "Account {} for set {}".format(a.get_name(), set_apprch)
         hd          = "="*width + "\n"
         space_amt   = width//2-len(title_sub_str)
         title_str   = "{}{}{}".format(" "*space_amt, title_sub_str, " "*space_amt)
@@ -252,15 +276,15 @@ def _view_range_budget(a: Account, timeframe: [(int, int)], width: int) -> str:
         for y,m in timeframe[(set_apprch-1)*min(bud_lim, it):set_apprch*min(bud_lim, it)]:
             bud_apprch += 1
 
-            attrib_str += "  {} {}|".format(months_abv(m), y+1)
+            attrib_str += "  {} {}|".format(bc.months_abv(m), y+1)
             
-            g_str = "{:.2f}".format(a[("goal",y,m)]/100) 
+            g_str = "{:.2f}".format(a.get_goal(y,m)/100) 
             goal_str += "."*(10-len(g_str)) + g_str+"|"
             
-            r_str = "{:.2f}".format(a[("reached",y,m)]/100)
+            r_str = "{:.2f}".format(a.get_reached(y,m)/100)
             reach_str += "."*(10-len(r_str)) + r_str+"|"
             
-            e_str = "{:.2f}".format(a[("remain",y,m)]/100)
+            e_str = "{:.2f}".format(a.get_remain(y,m)/100)
             remain_str += "."*(10-len(e_str)) + e_str + "|"
         lines.append(title_str + "\n" + hd + attrib_str + "\n" + goal_str + "\n" + reach_str + "\n" + remain_str + "\n")
     return "\n".join(lines)
@@ -283,9 +307,9 @@ def _view_range_budgets(ats: [Account], timeframe: [(int, int)], width: int) -> 
         a_index     = 0
         lines.append(title_str + "\n" + hd)
         
-        for a in sorted(ats, key=lambda x: x["name"]):
+        for a in sorted(ats, key=lambda x: x.get_name()):
             a_index     += 1
-            a_str       = "{:>3}. {}".format(a_index, a["name"])
+            a_str       = "{:>3}. {}".format(a_index, a.get_name())
             attrib_str  = a_str + (20-len(a_str)) * "." + "|Attribute|"
             goal_str    = " "*20+"|Goal.....|"
             reach_str   = " "*20+"|Reached..|"
@@ -293,15 +317,15 @@ def _view_range_budgets(ats: [Account], timeframe: [(int, int)], width: int) -> 
             
             for y,m in timeframe[(set_apprch-1)*min(bud_lim, it):set_apprch*min(bud_lim, it)]:
                 bud_apprch += 1
-                attrib_str += "  {} {}|".format(months_abv(m), y+1)
+                attrib_str += "  {} {}|".format(bc.months_abv(m), y+1)
                 try: 
-                    g_str = "{:.2f}".format(a[("goal",y,m)]/100) 
+                    g_str = "{:.2f}".format(a.get_goal(y,m)/100) 
                     goal_str += "."*(10-len(g_str)) + g_str+"|"
                 
-                    r_str = "{:.2f}".format(a[("reached",y,m)]/100)
+                    r_str = "{:.2f}".format(a.get_reached(y,m)/100)
                     reach_str += "."*(10-len(r_str)) + r_str+"|"
                 
-                    e_str = "{:.2f}".format(a[("remain",y,m)]/100)
+                    e_str = "{:.2f}".format(a.get_remain(y,m)/100)
                     remain_str += "."*(10-len(e_str)) + e_str + "|"
                 except:                 
                     goal_str    += "."*10 + "|"

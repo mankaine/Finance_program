@@ -1,7 +1,7 @@
 # open.py 
 # Opens file to import Accounts and Transactions
 
-from account import Account, Budget
+from account import Account, Budget # Necessary to initialize Budget namedtuple
 from transaction import Transaction
 
 def main(filename: str) -> ({str:None}, [Account], [Transaction]):
@@ -28,7 +28,7 @@ def main(filename: str) -> ({str:None}, [Account], [Transaction]):
             
     # Add Transactions in Accounts, but only if the Transaction is not in 
     # the list of Transaction objects already 
-    ts = ts + [t for a in acts for t in a["ts"] if t not in ts]
+    ts = ts + [t for a in acts for t in a.get_ts() if t not in ts]
     return var, acts, ts
 
 
@@ -37,23 +37,20 @@ if __name__ == "__main__":
     def cprint(a: Account):
         """Clean prints an Account
         """
-        print("Account({},{},".format(a["name"], a["kind"]))
-        pprint(a["ts"])
+        print("Account({},{},".format(a.get_name(), a.get_kind()))
+        pprint(a.get_ts())
         print(",")
-        pprint(a["budgets"])
+        pprint(a.get_budgets())
 
     var, ats, ts = main("test.txt")
     
-    print()
-    print("Imported Accounts") 
+    print("\nImported Accounts") 
     for a in ats: 
         cprint(a)
     
-    print()
-    print("Imported Transactions")
+    print("\nImported Transactions")
     for t in ts: 
         print(t)
     
-    print()
-    print("Imported variables")
+    print("\nImported variables")
     print(var)

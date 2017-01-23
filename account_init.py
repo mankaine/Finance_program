@@ -13,8 +13,8 @@ def create_from(ts: [Transaction]) -> [Account]:
     """
     accts = defaultdict(list)
     for t in ts: 
-        accts[t["dr_account"]].append(t)
-        accts[t["cr_account"]].append(t)
+        accts[t.get_dr_account()].append(t)
+        accts[t.get_cr_account()].append(t)
         
     results = list()
     for a in accts: 
@@ -39,24 +39,18 @@ def merge_accounts(ats: [Account]) -> [Account]:
     """
     merged_accounts  = list() 
     grouped_accounts = defaultdict(list)
-    for a in ats: grouped_accounts[a["name"]].append(a)
+    for a in ats: grouped_accounts[a.get_name()].append(a)
     for _,v in grouped_accounts.items():
         merged_accounts.append( v[0].merge(v[1:]) )
     return merged_accounts
 
-
-# Functions for an end user to enter an Account  
-#     *Get the  budget 
-#     *Enter by unique year and month of Transactions
-#         -Manually enter provided certain information (amount spent for that time period), 
-#         -Skip
 
 def _get_name(ts: [Transaction]) -> str:
     """Returns name user indicates as the title of Account, based on 
     user input 
     """
     while True: 
-        names_duplicates = [t["dr_account"] for t in ts] + [t["cr_account"] for t in ts]
+        names_duplicates = [t.get_dr_account() for t in ts] + [t.get_cr_account() for t in ts]
         names = sorted(set(names_duplicates))
         try: 
             print("Choosing Account Name\n" + ("="*40))
@@ -96,7 +90,7 @@ def _get_type() -> int:
 def _get_ts(name: str) -> [Transaction]:
     """Returns Transactions that contain an account name with the specified value
     """ 
-    return [t for t in ts if name in (t["dr_account"], t["cr_account"])]        
+    return [t for t in ts if name in (t.get_dr_account(), t.get_cr_account())]        
 
 
 # Testing
@@ -133,6 +127,6 @@ if __name__ == "__main__":
 
     for i in merge_accounts([a0,a1,a2,a3]):
         pprint.pprint(i)
-        print(len(i["ts"]))
+        print(len(i.get_ts()))
     
     

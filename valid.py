@@ -44,25 +44,42 @@ def kind(k):
 def name(a):
     """Succeeds silently if input is of type string
     """
-    assert type(a) == str, "kind.name: " + type(a) + " is not str"
-    
+    assert type(a) == str, "kind.name: " + str(type(a)) + " is not str"
+
+
+def budgets(b):
+    """Succeeds silently if input contains a dictionary in a dictionary,
+    with month and year keys 
+    """
+    assert type(b) == dict, "kind.budgets: " + str(type(b)) + "is not dict"
+    for k in b: 
+        if k < 0 or k > 9999:
+            raise ValueError(
+                "kind.budgets: year key" \
+                + str(k) + " is outside of range 0 to 9999 inclusive")
+        for m in b[k]: 
+            if m < 0 or m > 11: 
+                raise ValueError(
+                    "kind.bdugets: month key" \
+                    + str(k) + "is outside of range 0 to 11 inclusive")
+
     
 def cr_account(a):
     """Succeeds silently if input is of type string
     """
-    assert type(a) == str, "kind.account: " + type(a) + " is not str"
+    assert type(a) == str, "kind.account: " + str(type(a)) + " is not str"
     
 
 def dr_account(a):
     """Succeeds silently if input is of type string
     """
-    assert type(a) == str, "kind.account: " + type(a) + " is not str"
+    assert type(a) == str, "kind.account: " + str(type(a)) + " is not str"
 
     
 def description(d):
     """Succeeds silently if input is of type string
     """
-    assert type(d) == str, "kind.description: " + type(d) + " is not str"
+    assert type(d) == str, "kind.description: " + str(type(d)) + " is not str"
     
 
 def currency(c):
