@@ -3,12 +3,6 @@ README.md<br />
 Author: mankaine<br />
 Published 8 April 2016<br />
 
-## TABLE OF CONTENTS
-1. DESCRIPTION
-2. REPOSITORY CHANGELOG
-3. EXAMPLE IMPLEMENTATION
-
-
 ### DESCRIPTION
 This program is intended to log and finance your budget. <br />
 
@@ -19,3 +13,6 @@ View transactions.<br />
 Set budgets.<br />
 
 Written in Python. Most ideal to run in a Python interpreter/Terminal<br />
+
+### RUNNING THE PROGRAM
+Download the program and run main_menu.py in Terminal. 
