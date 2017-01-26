@@ -101,7 +101,8 @@ class Account:
 
 
     def add(self, t):
-        assert type(t) == Transaction, "account.Account.add_t: {} is not type Transaction".format(type(t))
+        assert type(t) == Transaction, \
+            "account.Account.add_t: {} is not type Transaction".format(type(t))
         self._ts.append(t)
         self._revise_budget(t.get_year(), t.get_month())
     
@@ -109,11 +110,25 @@ class Account:
     def update_all_reached(self):
         """Updates all reached attributes
         """
-        def _cond(t,y,m): return t.get_year() == y and t.get_month() == m
         for y in self._budgets:
             for m in self._budgets[y]:
                 self.set_reached(
-                    y, m, sum(t.get_amount() for t in self._ts if _cond(t,y,m) ))
+                    y, m, sum(t.get_amount() for t in self._ts if Account._cond(y,m,t) ))
+    
+    
+    def remove_empty_budgets(self):
+        """Removes all Account Budget values that do not correspond 
+        to any Transactions  
+        """
+        _budgets_without_empties = defaultdict(dict) 
+        for y in self._budgets: 
+            for m in self._budgets[y]:
+                _ts_amt = [t for t in self._ts if Account._cond(y,m,t)]
+                if _ts_amt != 0:
+                    _budgets_without_empties[y][m] = Budget(
+                        self.get_goal(y,m), self.get_reached(y,m), _ts_amt)
+        self.set_budgets(_budgets_without_empties) 
+                     
     
     
     # Setters 
@@ -242,7 +257,7 @@ class Account:
         self._ts.remove(t)
         self._budgets[y][m] = Budget(
             self.get_goal(y,m), 
-            self.get_reached(y,m) - (t.get_amount()), self.get_ts_amt(y,m))
+            self.get_reached(y,m) - (t.get_amount()), self.get_ts_amt(y,m) - 1)
 
 
 # Testing 
