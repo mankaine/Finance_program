@@ -81,15 +81,26 @@ def menu(ts, i, ats) -> None:
     """ 
     attribs = ("yrr", "mth", "day", "dsc", "dac", "cac", "crr", "flw", "amt",
                "prc", "del", "esc")
-    while True:
+    editing = True 
+    while editing:
         print(_menu+"\n\nSelected Transaction:\n" + header()) 
-        print(view(ts[i])) 
+        if len(ts) == 0:
+            print("    No Transactions to edit")
+            break
         try:
+            # Placing this in try statement prevents exception from being raised
+            # when Transaction is deleted
+            try: 
+                print(view(ts[i])) 
+            except: 
+                print("{:^100}".format("Transaction No Longer Available: It Was Deleted"))
+                break 
             choice = input("Your choice: ").rstrip()
             assert choice in attribs, "{} not an option.".format(choice)
-            if choice == "esc": break
+            if choice == "esc":
+                break
             _new_input(ts, i, as_attrib[choice], ats)
-            break
+            editing = bc.binary_question("Continue editing ([y]es or [n]o): ", "y", 'n')
         except Exception as e: 
             print("    An error occured: transedit.main: {}".format(e))
             
@@ -104,49 +115,58 @@ def _new_input(ts: [Transaction], trans_index: int, attrib: str, ats: [Account])
                 choice = input("Enter new day (previous: {}): ".format(
                     trans_to_edit.get_day() + 1))
                 trans_to_edit.set_day(int(eval(choice) - 1))
+                break
             elif attrib == "month":
                 choice = input("Enter new month (previous: {}): ".format(
                     trans_to_edit.get_month() + 1))
                 trans_to_edit.set_month(int(eval(choice) - 1))
+                break
             elif attrib == "year":
                 choice = input("Enter new year (previous: {}): ".format(
                     trans_to_edit.get_year() + 1)) 
                 trans_to_edit.set_year(int(eval(choice) - 1))
+                break
             elif attrib == "description":
                 choice = input("Enter new description (previous: {}): ".format(
                     trans_to_edit.get_description())) 
                 trans_to_edit.set_description(choice)
+                break
             elif attrib == "dr_account":
                 choice = input("Enter new account (previous: {}): ".format(
                     trans_to_edit.get_dr_account())) 
                 trans_to_edit.set_dr_account(choice)
+                break
             elif attrib == "cr_account":
                 choice = input("Enter new account (previous: {}): ".format(
                     trans_to_edit.get_cr_account())) 
                 trans_to_edit.set_cr_account(choice)
+                break
             elif attrib == "description":
                 choice = input("Enter new description (previous: {}): ".format(
                     trans_to_edit.get_currency())) 
                 trans_to_edit.set_currency(choice)
+                break
             elif attrib == "amount": 
-                choice = input("Enter new value (previous: {}): ".format(
-                    trans_to_edit.get_amount()))
-                trans_to_edit.set_amount(choice)
+                choice = input("Enter new amount (previous: {:.2f}): ".format(
+                    round(trans_to_edit.get_amount()/100, 2) ))
+                trans_to_edit.set_amount(eval(choice)*100)
+                break
             elif attrib in ("delete"):
                 if bc.binary_question(
                     "Are you sure you want to delete this transaction ([y]es or [n]o): ", 
                     "y", "n"):
-                    ts.remove(ts[trans_index])
                     for a in ats: 
                         if ts[trans_index] in a: 
                             a.remove(ts[trans_index])
+                    ts.remove(ts[trans_index])
                     print("Transaction Successfully Deleted")
+                    break
+                else:
                     break
         except Exception as e: 
             print("    An error has occurred: " + str(e))
         else: 
             print("Transaction Successfully Updated")
-            break 
         
         
 if __name__ == "__main__":
