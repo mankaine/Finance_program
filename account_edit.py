@@ -24,6 +24,8 @@ def main(ats: [Account]) -> None:
     """Provides menu/user input to edit accounts
     """
     while True: 
+        for a in ats: 
+            a.remove_empty_budgets()
         try: 
             print(menu)
             choice = input("Your Choice: ").rstrip()

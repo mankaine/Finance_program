@@ -66,7 +66,7 @@ while True:
     except ValueError as e:
         print("    An error has occurred: {}".format(e))
     except Exception as e:
+        raise 
         print("    Fatal Error: {}".format(e)) 
-
-# Saving Data 
-save.main(transactions, accounts, variables, data_file_str)
+    finally: 
+        save.main(transactions, accounts, variables, data_file_str)

@@ -48,6 +48,8 @@ def _um_ats(ats: "generator", y: int) -> [int]:
 def main(ats: [Account]) -> None:
     while True: 
         assert len(ats) != 0, "No Account collection exists"
+        for a in ats:
+            a.remove_empty_budgets()
         print(menu)
         try: 
             choice = input("Your choice: ").rstrip()
