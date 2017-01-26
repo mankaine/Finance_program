@@ -16,6 +16,7 @@ VIEW MENU
 def main(ts: ["Transaction"]) -> None:
     """Requests user prompt to display information about Transactions
     """
+    ts.sort(key=lambda x: (x.get_year(), x.get_month(), x.get_day()))
     viewing = True 
     while viewing: 
         print(menu)
@@ -131,8 +132,8 @@ def view(t, num="") -> str:
     return "{:>3}{} {:>4} {:>2} {:>2} {:<30} {:<30} {:>8.2f}\n{}{:<30} {:>8.2f}".format(
         num, "" if num == "" else ".", t.get_year()+1, t.get_month()+1, 
         t.get_day()+1,t.get_description(), t.get_dr_account(), 
-        round(t.get_amount()/100, 2),  " "*55, t.get_cr_account(),
-        round(t.get_amount()/100), 2)
+        round(t.get_amount()/100, 2),  
+        " "*55, t.get_cr_account(), round(t.get_amount()/100, 2))
       
 
 # Testing
